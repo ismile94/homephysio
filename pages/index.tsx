@@ -151,6 +151,7 @@ export default function Home() {
   const [formData, setFormData] = useState({ name: '', phone: '', email: '', message: '' });
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
     setYear(new Date().getFullYear());
@@ -194,19 +195,34 @@ export default function Home() {
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setFormError(null);
     
-    // Simulate form submission (replace with actual API call)
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Here you would typically send the data to your backend/API
-    // For example: await fetch('/api/contact', { method: 'POST', body: JSON.stringify(formData) });
-    
-    setFormSubmitted(true);
-    setIsSubmitting(false);
-    setFormData({ name: '', phone: '', email: '', message: '' });
-    
-    // Reset success message after 5 seconds
-    setTimeout(() => setFormSubmitted(false), 5000);
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send message');
+      }
+
+      setFormSubmitted(true);
+      setFormData({ name: '', phone: '', email: '', message: '' });
+      
+      // Reset success message after 5 seconds
+      setTimeout(() => setFormSubmitted(false), 5000);
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      setFormError(error instanceof Error ? error.message : 'An error occurred. Please try again or call us directly.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -1020,7 +1036,7 @@ export default function Home() {
           </div>
           <p>Delivering specialist, evidence-based physiotherapy care in the comfort and safety of your own home. Comprehensive rehabilitation programmes tailored to your individual needs and goals.</p>
           <a href="#contact" className="cta-button">
-            <span>📅</span> Book Your Free Consultation
+            <span>📅</span> Book Your Consultation
           </a>
         </div>
         <div className="hero-image">
@@ -1355,6 +1371,20 @@ export default function Home() {
             </div>
           </div>
           <form className="contact-form" onSubmit={handleFormSubmit}>
+            {formError && (
+              <div style={{ 
+                padding: '1rem', 
+                marginBottom: '1.5rem', 
+                background: '#fee2e2', 
+                color: '#991b1b', 
+                borderRadius: '12px',
+                border: '2px solid #ef4444',
+                textAlign: 'center',
+                fontWeight: 600
+              }}>
+                ⚠ {formError}
+              </div>
+            )}
             {formSubmitted && (
               <div style={{ 
                 padding: '1rem', 

@@ -596,53 +596,6 @@ export default function Home() {
           color: #3b82f6;
         }
 
-        .image-section {
-          background: #f8fafc;
-          padding: 6rem 2rem;
-        }
-
-        .image-container {
-          max-width: 1200px;
-          margin: 0 auto;
-        }
-
-        .image-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 1.5rem;
-          margin-top: 3rem;
-        }
-
-        @media (max-width: 968px) {
-          .image-grid {
-            grid-template-columns: repeat(2, 1fr);
-          }
-        }
-
-        @media (max-width: 640px) {
-          .image-grid {
-            grid-template-columns: 1fr;
-          }
-        }
-
-        .image-grid-item {
-          height: 280px;
-          border-radius: 16px;
-          overflow: hidden;
-          box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-        }
-
-        .image-grid-item img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          transition: transform 0.5s;
-        }
-
-        .image-grid-item:hover img {
-          transform: scale(1.1);
-        }
-
         .process-section {
           background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
           padding: 6rem 2rem;
@@ -988,7 +941,6 @@ export default function Home() {
             gap: 3rem;
           }
 
-          .image-grid,
           .conditions-grid {
             grid-template-columns: repeat(2, 1fr);
           }
@@ -1031,7 +983,6 @@ export default function Home() {
             height: 300px;
           }
 
-          .image-grid,
           .conditions-grid,
           .process-steps {
             grid-template-columns: 1fr;
@@ -1074,8 +1025,8 @@ export default function Home() {
         </div>
         <div className="hero-image">
           <img 
-            src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=1200&h=800&fit=crop&q=85" 
-            alt="Geriatric rehabilitation at home"
+            src="/evhastasi.jpg" 
+            alt="Home physiotherapy care"
             loading="eager"
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
@@ -1283,62 +1234,6 @@ export default function Home() {
               <li>MDT communication and liaison</li>
               <li>Long-term health promotion</li>
             </ul>
-          </div>
-        </div>
-      </section>
-
-      <section className="image-section">
-        <div className="image-container">
-          <h2 className="section-title">Professional Care in Your Home</h2>
-          <div className="image-grid">
-            <div className="image-grid-item">
-              <img 
-                src="https://images.unsplash.com/photo-1551190822-a9333d879b1f?w=800&h=600&fit=crop&q=85" 
-                alt="Geriatric rehabilitation care"
-                loading="lazy"
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-            </div>
-            <div className="image-grid-item">
-              <img 
-                src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&h=600&fit=crop&q=85" 
-                alt="Elderly rehabilitation exercises"
-                loading="lazy"
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-            </div>
-            <div className="image-grid-item">
-              <img 
-                src="https://images.unsplash.com/photo-1584515933487-779824d29309?w=800&h=600&fit=crop&q=85" 
-                alt="Home geriatric physiotherapy"
-                loading="lazy"
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-            </div>
-            <div className="image-grid-item">
-              <img 
-                src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&h=600&fit=crop&q=85" 
-                alt="Balance exercises for elderly"
-                loading="lazy"
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-            </div>
-            <div className="image-grid-item">
-              <img 
-                src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&h=600&fit=crop&q=85" 
-                alt="Mobility training for seniors"
-                loading="lazy"
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-            </div>
-            <div className="image-grid-item">
-              <img 
-                src="https://images.unsplash.com/photo-1551190822-a9333d879b1f?w=800&h=600&fit=crop&q=85" 
-                alt="Geriatric physical therapy"
-                loading="lazy"
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-            </div>
           </div>
         </div>
       </section>

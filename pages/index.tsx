@@ -1346,7 +1346,7 @@ export default function Home() {
               <span>{openFaq === 6 ? '−' : '+'}</span>
             </div>
             <div className={`faq-answer ${openFaq === 6 ? 'active' : ''}`}>
-              Yes, I am fully registered with the Health and Care Professions Council (HCPC) and am a Chartered Member of the Chartered Society of Physiotherapy (CSP). I hold full Professional Liability Insurance (PLI) and have an enhanced DBS check.
+              Yes. Fully registered with the Health and Care Professions Council (HCPC) and a Chartered Member of the Chartered Society of Physiotherapy (CSP). Full Professional Liability Insurance (PLI) is in place, along with an enhanced DBS check.
             </div>
           </div>
         </div>

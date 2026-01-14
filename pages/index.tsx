@@ -1013,7 +1013,7 @@ export default function Home() {
 
       <nav>
         <div className="nav-container">
-          <div className="logo">Home Physio</div>
+          <div className="logo">Home Physiotherapy Visit</div>
           <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)}>☰</button>
           <ul className={`nav-links ${menuOpen ? 'active' : ''}`}>
             <li><a href="#home">Home</a></li>
@@ -1346,7 +1346,7 @@ export default function Home() {
               <span>{openFaq === 6 ? '−' : '+'}</span>
             </div>
             <div className={`faq-answer ${openFaq === 6 ? 'active' : ''}`}>
-              Yes, I am fully registered with the Health and Care Professions Council (HCPC) and am a Chartered Member of the Chartered Society of Physiotherapy (CSP). I hold full professional indemnity insurance and have an enhanced DBS check.
+              Yes, I am fully registered with the Health and Care Professions Council (HCPC) and am a Chartered Member of the Chartered Society of Physiotherapy (CSP). I hold full Professional Liability Insurance (PLI) and have an enhanced DBS check.
             </div>
           </div>
         </div>
@@ -1439,7 +1439,7 @@ export default function Home() {
 
       <footer>
         <p><strong>Ismail Aram BSc (Hons) MCSP – Chartered Physiotherapist</strong></p>
-        <p style={{ marginTop: '0.5rem' }}>HCPC Registered | Professional Indemnity Insurance | Enhanced DBS</p>
+        <p style={{ marginTop: '0.5rem' }}>HCPC Registered | Professional Liability Insurance (PLI) | Enhanced DBS</p>
         <p style={{ marginTop: '1rem' }}>© {year} Ismail Aram Physiotherapy. All rights reserved.</p>
       </footer>
 

@@ -1362,7 +1362,7 @@ export default function Home() {
                 <span>📞</span> <a href="tel:07466012234">07466 012234</a>
               </div>
               <div className="contact-item">
-                <span>📧</span> <a href="mailto:ismailaram94@gmail.com">ismailaram94@gmail.com</a>
+                <span>📧</span> <a href="mailto:contact@physiovisit.co.uk">contact@physiovisit.co.uk</a>
               </div>
             </div>
             <div className="coverage-area">

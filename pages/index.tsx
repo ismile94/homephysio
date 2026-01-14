@@ -1319,7 +1319,7 @@ export default function Home() {
               <span>{openFaq === 3 ? '−' : '+'}</span>
             </div>
             <div className={`faq-answer ${openFaq === 3 ? 'active' : ''}`}>
-              Initial assessment: £75 | Standard session (45-60 mins): £65 | We offer package discounts for block bookings. Payment can be made by cash or bank transfer.
+              Initial assessment: £95 | Standard session (45-60 mins): £75 | We offer package discounts for block bookings. Payment can be made by cash or bank transfer.
             </div>
           </div>
           <div className="faq-item">

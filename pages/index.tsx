@@ -233,7 +233,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Ismail Aram - Chartered Physiotherapist | Home Physiotherapy Services UK</title>
+        <title>Home Physiotherapy Services UK</title>
         <meta name="description" content="HCPC registered physiotherapist providing specialist home physiotherapy across the UK. Neurological rehabilitation, post-operative care, falls prevention and more." />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>
@@ -1319,7 +1319,7 @@ export default function Home() {
               <span>{openFaq === 3 ? '−' : '+'}</span>
             </div>
             <div className={`faq-answer ${openFaq === 3 ? 'active' : ''}`}>
-              Initial assessment: £75 | Standard session (45-60 mins): £65 | We offer package discounts for block bookings. Payment can be made by cash, bank transfer, or card. Some private health insurance policies cover home physiotherapy - please check with your provider.
+              Initial assessment: £75 | Standard session (45-60 mins): £65 | We offer package discounts for block bookings. Payment can be made by cash or bank transfer.
             </div>
           </div>
           <div className="faq-item">

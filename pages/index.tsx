@@ -1367,7 +1367,7 @@ export default function Home() {
             </div>
             <div className="coverage-area">
               <h4>📍 Service Areas</h4>
-              <p>West and North London, East and West Berkshire, South Buckinghamshire and surrounding areas. Flexible appointment times available - contact us to discuss your preferred schedule.</p>
+              <p>London, Berkshire, South Buckinghamshire and surrounding areas. Flexible appointment times available - contact us to discuss your preferred schedule.</p>
             </div>
           </div>
           <form className="contact-form" onSubmit={handleFormSubmit}>

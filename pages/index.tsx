@@ -1328,7 +1328,7 @@ export default function Home() {
               <span>{openFaq === 4 ? '−' : '+'}</span>
             </div>
             <div className={`faq-answer ${openFaq === 4 ? 'active' : ''}`}>
-              We provide home visits across Berkshire, London and buckinghamshire, with coverage extending to surrounding areas. Please contact us to confirm we can visit your location - we're often able to accommodate requests outside our standard coverage area.
+              We provide home visits across Berkshire, London and Buckinghamshire, with coverage extending to surrounding areas. Please contact us to confirm we can visit your location - we're often able to accommodate requests outside our standard coverage area.
             </div>
           </div>
           <div className="faq-item">

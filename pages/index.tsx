@@ -1,146 +1,9 @@
-import { useState, useEffect } from 'react';
-import Head from 'next/head';
-
-interface ServiceData {
-  title: string;
-  description: string;
-  conditions: string[];
-  treatments: string[];
-}
-
-const servicesData: Record<string, ServiceData> = {
-  neurological: {
-    title: "Neurological Physiotherapy",
-    description: "Specialist neurological rehabilitation focusing on maximizing function, independence, and quality of life for patients with neurological conditions.",
-    conditions: [
-      "Stroke (CVA) - acute and chronic recovery",
-      "Parkinson's Disease - movement and balance training",
-      "Multiple Sclerosis (MS) - fatigue management and mobility",
-      "Motor Neurone Disease (MND) - maintaining function and independence",
-      "Brain Injury - cognitive and physical rehabilitation",
-      "Spinal Cord Injury - functional training and adaptation",
-      "Peripheral Neuropathy - sensory retraining and gait work"
-    ],
-    treatments: [
-      "Neuroplasticity-based rehabilitation",
-      "Task-specific training programmes",
-      "Balance and coordination exercises",
-      "Gait re-education and walking aids",
-      "Upper limb functional training",
-      "Spasticity management",
-      "Fatigue management strategies"
-    ]
-  },
-  geriatric: {
-    title: "Geriatric Rehabilitation",
-    description: "Comprehensive physiotherapy for older adults, promoting healthy aging, maintaining independence, and improving quality of life.",
-    conditions: [
-      "Frailty Syndrome - strength and endurance building",
-      "Osteoarthritis - pain management and joint mobility",
-      "Reduced Mobility - progressive exercise programmes",
-      "Deconditioning - post-hospital or illness recovery",
-      "Post-Hospital Discharge - safe transition home",
-      "General Age-Related Decline - preventative interventions"
-    ],
-    treatments: [
-      "Progressive strength training",
-      "Functional mobility exercises",
-      "Balance and stability work",
-      "Joint mobilization techniques",
-      "Pain management strategies",
-      "Home safety assessments",
-      "Walking aid prescription and training"
-    ]
-  },
-  postOp: {
-    title: "Post-operative Rehabilitation",
-    description: "Structured recovery programmes designed to optimize healing, restore function, and return you to your desired activities safely following surgery.",
-    conditions: [
-      "Hip Replacement - total and partial",
-      "Knee Replacement - total and partial",
-      "Spinal Surgery - discectomy, fusion, decompression",
-      "Shoulder Surgery - rotator cuff, arthroplasty",
-      "Orthopaedic Trauma - fracture fixation",
-      "ACL Reconstruction - sport-specific rehab",
-      "Fracture Rehabilitation - conservative and surgical"
-    ],
-    treatments: [
-      "Post-surgical exercise protocols",
-      "Progressive loading programmes",
-      "Scar tissue mobilization",
-      "Range of movement restoration",
-      "Strength and conditioning",
-      "Functional activity training",
-      "Return to activity planning"
-    ]
-  },
-  balance: {
-    title: "Balance & Falls Prevention",
-    description: "Specialist assessment and treatment for balance disorders, reducing fall risk and building confidence in mobility.",
-    conditions: [
-      "Recurrent Falls - multi-factorial assessment",
-      "Balance Disorders - various etiologies",
-      "Vestibular Dysfunction - BPPV, vestibular neuritis",
-      "Dizziness & Vertigo - symptom management",
-      "Fear of Falling - confidence building",
-      "Gait Abnormalities - biomechanical correction",
-      "Muscle Weakness - targeted strengthening"
-    ],
-    treatments: [
-      "Vestibular rehabilitation exercises",
-      "Balance retraining programmes",
-      "Epley maneuver for BPPV",
-      "Strength and conditioning",
-      "Environmental modification advice",
-      "Walking aid assessment",
-      "Fear avoidance therapy"
-    ]
-  },
-  msk: {
-    title: "Musculoskeletal Physiotherapy",
-    description: "Evidence-based treatment for acute and chronic musculoskeletal pain and dysfunction, helping you return to normal activities.",
-    conditions: [
-      "Lower Back Pain - acute and chronic",
-      "Neck Pain & Whiplash - trauma and postural",
-      "Osteoarthritis - all major joints",
-      "Rheumatoid Arthritis - inflammatory conditions",
-      "Sports Injuries - strains, sprains, tendinopathies",
-      "Shoulder Pain - rotator cuff, frozen shoulder",
-      "Tendinopathies - Achilles, patellar, tennis elbow"
-    ],
-    treatments: [
-      "Manual therapy techniques",
-      "Joint mobilization and manipulation",
-      "Soft tissue massage",
-      "Exercise prescription",
-      "Postural correction",
-      "Ergonomic advice",
-      "Pain neuroscience education"
-    ]
-  },
-  respiratory: {
-    title: "Respiratory Physiotherapy",
-    description: "Specialist breathing and airway clearance techniques to improve respiratory function and quality of life.",
-    conditions: [
-      "COPD - chronic obstructive pulmonary disease",
-      "Post-COVID Recovery - long COVID rehabilitation",
-      "Bronchiectasis - airway clearance",
-      "Cystic Fibrosis - ongoing management",
-      "Chronic Breathlessness - symptom control",
-      "Pneumonia Recovery - post-infection rehab",
-      "Chest Infections - acute management"
-    ],
-    treatments: [
-      "Breathing exercises and techniques",
-      "Airway clearance methods",
-      "Pulmonary rehabilitation programmes",
-      "Energy conservation strategies",
-      "Positioning for optimal breathing",
-      "Exercise tolerance training",
-      "Oxygen assessment and advice"
-    ]
-  }
-};
+import { useState, useEffect, useRef } from 'react';
+import Seo from '@/components/Seo';
+import { servicesData, type ServiceData } from '@/data/services';
+import { faqs } from '@/data/faqs';
+import { site, townLabel } from '@/data/site';
+import { LIMITS, isValidEmail } from '@/lib/validate';
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -148,10 +11,12 @@ export default function Home() {
   const [activeService, setActiveService] = useState<ServiceData | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [year, setYear] = useState(0);
-  const [formData, setFormData] = useState({ name: '', phone: '', email: '', message: '' });
+  // `company` is a honeypot - hidden from people, filled in by form bots.
+  const [formData, setFormData] = useState({ name: '', phone: '', email: '', message: '', company: '' });
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const formMountedAt = useRef(Date.now());
 
   useEffect(() => {
     setYear(new Date().getFullYear());
@@ -194,16 +59,22 @@ export default function Home() {
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (formData.email && !isValidEmail(formData.email)) {
+      setFormError('That email address does not look right - please check it, or leave it blank.');
+      return;
+    }
+
     setIsSubmitting(true);
     setFormError(null);
-    
+
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, elapsed: Date.now() - formMountedAt.current }),
       });
 
       const data = await response.json();
@@ -213,13 +84,13 @@ export default function Home() {
       }
 
       setFormSubmitted(true);
-      setFormData({ name: '', phone: '', email: '', message: '' });
+      setFormData({ name: '', phone: '', email: '', message: '', company: '' });
       
       // Reset success message after 5 seconds
       setTimeout(() => setFormSubmitted(false), 5000);
     } catch (error) {
       console.error('Error submitting form:', error);
-      setFormError(error instanceof Error ? error.message : 'An error occurred. Please try again or call us directly.');
+      setFormError(error instanceof Error ? error.message : `An error occurred. Please try again or call ${site.phone}.`);
     } finally {
       setIsSubmitting(false);
     }
@@ -232,11 +103,7 @@ export default function Home() {
 
   return (
     <>
-      <Head>
-        <title>Ismail Aram - Chartered Physiotherapist | Home Physiotherapy Services UK</title>
-        <meta name="description" content="HCPC registered physiotherapist providing specialist home physiotherapy across the UK. Neurological rehabilitation, post-operative care, falls prevention and more." />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      </Head>
+      <Seo />
 
       <style jsx global>{`
         * {
@@ -462,6 +329,12 @@ export default function Home() {
         }
 
         .service-card {
+          width: 100%;
+          display: block;
+          text-align: left;
+          font-family: inherit;
+          font-size: 1rem;
+          color: inherit;
           background: white;
           padding: 2rem;
           border-radius: 16px;
@@ -652,7 +525,7 @@ export default function Home() {
           margin: 0 auto 1rem;
         }
 
-        .process-step h4 {
+        .process-step h3 {
           font-size: 1.2rem;
           color: #1e293b;
           margin-bottom: 0.75rem;
@@ -683,6 +556,11 @@ export default function Home() {
         }
 
         .faq-question {
+          width: 100%;
+          text-align: left;
+          font-family: inherit;
+          background: none;
+          border: none;
           padding: 1.5rem;
           cursor: pointer;
           display: flex;
@@ -761,7 +639,7 @@ export default function Home() {
           border-radius: 12px;
         }
 
-        .coverage-area h4 {
+        .coverage-area h3 {
           margin-bottom: 1rem;
           font-size: 1.2rem;
         }
@@ -1028,13 +906,13 @@ export default function Home() {
 
       <section id="home" className="hero">
         <div className="hero-content">
-          <h1>Professional <span className="highlight">Home Physiotherapy</span></h1>
+          <h1><span className="highlight">Home Physiotherapy</span> in Manchester &amp; Cheshire</h1>
           <div className="credentials">
             <span className="credential-badge">HCPC Registered</span>
             <span className="credential-badge">MCSP Chartered</span>
             <span className="credential-badge">BSc (Hons) Physiotherapy</span>
           </div>
-          <p>Delivering specialist, evidence-based physiotherapy care in the comfort and safety of your own home. Comprehensive rehabilitation programmes tailored to your individual needs and goals.</p>
+          <p>Delivering specialist, evidence-based physiotherapy care in the comfort and safety of your own home, across Stockport, Altrincham, Wilmslow, Macclesfield and south Manchester. Comprehensive rehabilitation programmes tailored to your individual needs and goals.</p>
           <a href="#contact" className="cta-button">
             <span>📅</span> Book Your Consultation
           </a>
@@ -1042,8 +920,11 @@ export default function Home() {
         <div className="hero-image">
           <img 
             src="/evhastasi.jpg" 
-            alt="Home physiotherapy care"
+            alt="Physiotherapist supporting a patient through a mobility exercise at home"
+            width={880}
+            height={1000}
             loading="eager"
+            decoding="async"
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
         </div>
@@ -1079,42 +960,42 @@ export default function Home() {
         <h2 className="section-title">Specialist Services</h2>
         <p className="section-subtitle">Comprehensive physiotherapy care across a wide range of conditions, delivered with expertise and compassion in your home environment</p>
         <div className="services-grid">
-          <div className="service-card" onClick={() => openModal('neurological')}>
+          <button type="button" className="service-card" onClick={() => openModal('neurological')}>
             <div className="service-icon">🧠</div>
             <h3>Neurological Physiotherapy</h3>
             <p>Specialist rehabilitation for neurological conditions including stroke, Parkinson's, MS, and brain injury. Focus on maximizing independence and quality of life.</p>
             <p className="click-hint">View conditions & treatments →</p>
-          </div>
-          <div className="service-card" onClick={() => openModal('geriatric')}>
+          </button>
+          <button type="button" className="service-card" onClick={() => openModal('geriatric')}>
             <div className="service-icon">👴</div>
             <h3>Geriatric Rehabilitation</h3>
             <p>Comprehensive care for older adults addressing frailty, osteoarthritis, reduced mobility, and post-hospital recovery. Evidence-based interventions to maintain independence.</p>
             <p className="click-hint">View conditions & treatments →</p>
-          </div>
-          <div className="service-card" onClick={() => openModal('postOp')}>
+          </button>
+          <button type="button" className="service-card" onClick={() => openModal('postOp')}>
             <div className="service-icon">🏥</div>
             <h3>Post-operative Rehabilitation</h3>
             <p>Structured recovery programmes following joint replacements, spinal surgery, and orthopaedic procedures. Optimizing healing and restoring function safely.</p>
             <p className="click-hint">View conditions & treatments →</p>
-          </div>
-          <div className="service-card" onClick={() => openModal('balance')}>
+          </button>
+          <button type="button" className="service-card" onClick={() => openModal('balance')}>
             <div className="service-icon">⚖️</div>
             <h3>Balance & Falls Prevention</h3>
             <p>Targeted assessment and treatment for balance disorders, vestibular conditions, and recurrent falls. Building confidence and reducing fall risk.</p>
             <p className="click-hint">View conditions & treatments →</p>
-          </div>
-          <div className="service-card" onClick={() => openModal('msk')}>
+          </button>
+          <button type="button" className="service-card" onClick={() => openModal('msk')}>
             <div className="service-icon">🦴</div>
             <h3>Musculoskeletal Therapy</h3>
             <p>Treatment for back pain, neck pain, arthritis, and sports injuries. Manual therapy, exercise prescription, and pain management strategies.</p>
             <p className="click-hint">View conditions & treatments →</p>
-          </div>
-          <div className="service-card" onClick={() => openModal('respiratory')}>
+          </button>
+          <button type="button" className="service-card" onClick={() => openModal('respiratory')}>
             <div className="service-icon">🫁</div>
             <h3>Respiratory Physiotherapy</h3>
             <p>Breathing exercises, airway clearance techniques, and rehabilitation for COPD, post-COVID recovery, and chronic respiratory conditions.</p>
             <p className="click-hint">View conditions & treatments →</p>
-          </div>
+          </button>
         </div>
       </section>
 
@@ -1261,22 +1142,22 @@ export default function Home() {
           <div className="process-steps">
             <div className="process-step">
               <div className="process-number">1</div>
-              <h4>Initial Contact</h4>
+              <h3>Initial Contact</h3>
               <p>Call, email, or use our contact form to discuss your needs and book a free consultation.</p>
             </div>
             <div className="process-step">
               <div className="process-number">2</div>
-              <h4>Assessment Visit</h4>
+              <h3>Assessment Visit</h3>
               <p>Comprehensive 60-minute assessment in your home to evaluate your condition and goals.</p>
             </div>
             <div className="process-step">
               <div className="process-number">3</div>
-              <h4>Treatment Plan</h4>
+              <h3>Treatment Plan</h3>
               <p>Personalized rehabilitation programme developed collaboratively with clear, measurable objectives.</p>
             </div>
             <div className="process-step">
               <div className="process-number">4</div>
-              <h4>Ongoing Care</h4>
+              <h3>Ongoing Care</h3>
               <p>Regular treatment sessions with continuous monitoring, adjustment, and support.</p>
             </div>
           </div>
@@ -1286,69 +1167,26 @@ export default function Home() {
       <section id="faq" className="faq-section">
         <div className="faq-container">
           <h2 className="section-title">Frequently Asked Questions</h2>
-          <div className="faq-item">
-            <div className="faq-question" onClick={() => toggleFaq(0)}>
-              Do I need a GP referral?
-              <span>{openFaq === 0 ? '−' : '+'}</span>
+          {faqs.map((faq, index) => (
+            <div className="faq-item" key={faq.question}>
+              <button
+                className="faq-question"
+                onClick={() => toggleFaq(index)}
+                aria-expanded={openFaq === index}
+                aria-controls={`faq-answer-${index}`}
+              >
+                {faq.question}
+                <span aria-hidden="true">{openFaq === index ? '−' : '+'}</span>
+              </button>
+              <div
+                className={`faq-answer ${openFaq === index ? 'active' : ''}`}
+                id={`faq-answer-${index}`}
+                role="region"
+              >
+                {faq.answer}
+              </div>
             </div>
-            <div className={`faq-answer ${openFaq === 0 ? 'active' : ''}`}>
-              No, you don't need a GP referral to access our home physiotherapy services. However, we're happy to liaise with your GP and other healthcare professionals involved in your care to ensure a coordinated approach.
-            </div>
-          </div>
-          <div className="faq-item">
-            <div className="faq-question" onClick={() => toggleFaq(1)}>
-              How long are treatment sessions?
-              <span>{openFaq === 1 ? '−' : '+'}</span>
-            </div>
-            <div className={`faq-answer ${openFaq === 1 ? 'active' : ''}`}>
-              Initial assessments typically last 60 minutes, allowing comprehensive evaluation of your condition. Follow-up treatment sessions are usually 45-60 minutes, depending on your individual needs and treatment plan.
-            </div>
-          </div>
-          <div className="faq-item">
-            <div className="faq-question" onClick={() => toggleFaq(2)}>
-              How many sessions will I need?
-              <span>{openFaq === 2 ? '−' : '+'}</span>
-            </div>
-            <div className={`faq-answer ${openFaq === 2 ? 'active' : ''}`}>
-              This varies depending on your condition, goals, and progress. Some patients benefit from intensive short-term treatment (6-8 weeks), while others require longer-term management. We'll discuss this during your initial assessment and review progress regularly.
-            </div>
-          </div>
-          <div className="faq-item">
-            <div className="faq-question" onClick={() => toggleFaq(3)}>
-              What are your fees?
-              <span>{openFaq === 3 ? '−' : '+'}</span>
-            </div>
-            <div className={`faq-answer ${openFaq === 3 ? 'active' : ''}`}>
-              Initial assessment: £75 | Standard session (45-60 mins): £65 | We offer package discounts for block bookings. Payment can be made by cash, bank transfer, or card. Some private health insurance policies cover home physiotherapy - please check with your provider.
-            </div>
-          </div>
-          <div className="faq-item">
-            <div className="faq-question" onClick={() => toggleFaq(4)}>
-              Which areas do you cover?
-              <span>{openFaq === 4 ? '−' : '+'}</span>
-            </div>
-            <div className={`faq-answer ${openFaq === 4 ? 'active' : ''}`}>
-              We provide home visits across London and the Home Counties, with coverage extending to surrounding areas. Please contact us to confirm we can visit your location - we're often able to accommodate requests outside our standard coverage area.
-            </div>
-          </div>
-          <div className="faq-item">
-            <div className="faq-question" onClick={() => toggleFaq(5)}>
-              What should I prepare for my first visit?
-              <span>{openFaq === 5 ? '−' : '+'}</span>
-            </div>
-            <div className={`faq-answer ${openFaq === 5 ? 'active' : ''}`}>
-              Please have any relevant medical reports, imaging results, or medication lists available. Wear comfortable clothing that allows movement. Ensure there's adequate space for assessment and exercises. Having a family member or carer present can be helpful for support and education.
-            </div>
-          </div>
-          <div className="faq-item">
-            <div className="faq-question" onClick={() => toggleFaq(6)}>
-              Are you insured and registered?
-              <span>{openFaq === 6 ? '−' : '+'}</span>
-            </div>
-            <div className={`faq-answer ${openFaq === 6 ? 'active' : ''}`}>
-              Yes, I am fully registered with the Health and Care Professions Council (HCPC) and am a Chartered Member of the Chartered Society of Physiotherapy (CSP). I hold full professional indemnity insurance and have an enhanced DBS check.
-            </div>
-          </div>
+          ))}
         </div>
       </section>
 
@@ -1362,12 +1200,14 @@ export default function Home() {
                 <span>📞</span> <a href="tel:07466012234">07466 012234</a>
               </div>
               <div className="contact-item">
-                <span>📧</span> <a href="mailto:ismailaram94@gmail.com">ismailaram94@gmail.com</a>
+                <span>📧</span> <a href={`mailto:${site.email}`}>{site.email}</a>
               </div>
             </div>
             <div className="coverage-area">
-              <h4>📍 Service Areas</h4>
-              <p>West and North London, East and West Berkshire, South Buckinghamshire and surrounding areas. Flexible appointment times available - contact us to discuss your preferred schedule.</p>
+              <h3>📍 Areas We Cover</h3>
+              <p>Home visits across {site.coverage.label}. There is no clinic to travel to &mdash; every assessment and treatment session takes place in your own home.</p>
+              <p>{site.coverage.towns.map(townLabel).join(' · ')}</p>
+              <p>Just outside these areas? Send us your postcode and we&apos;ll confirm whether we can reach you.</p>
             </div>
           </div>
           <form className="contact-form" onSubmit={handleFormSubmit}>
@@ -1399,36 +1239,58 @@ export default function Home() {
                 ✓ Thank you! We'll get back to you within 24 hours.
               </div>
             )}
-            <input 
-              type="text" 
+            <input
+              type="text"
               name="name"
-              placeholder="Your Name *" 
+              placeholder="Your Name *"
+              aria-label="Your name"
+              autoComplete="name"
+              maxLength={LIMITS.name}
               value={formData.name}
               onChange={handleInputChange}
-              required 
+              required
             />
-            <input 
-              type="tel" 
+            <input
+              type="tel"
               name="phone"
-              placeholder="Phone Number *" 
+              placeholder="Phone Number *"
+              aria-label="Phone number"
+              autoComplete="tel"
+              maxLength={LIMITS.phone}
               value={formData.phone}
               onChange={handleInputChange}
-              required 
+              required
             />
-            <input 
-              type="email" 
+            <input
+              type="email"
               name="email"
-              placeholder="Email Address" 
+              placeholder="Email Address"
+              aria-label="Email address"
+              autoComplete="email"
+              maxLength={LIMITS.email}
               value={formData.email}
               onChange={handleInputChange}
             />
-            <textarea 
+            <textarea
               name="message"
-              placeholder="Tell us about your condition and how we can help... *" 
+              placeholder="Tell us about your condition and how we can help... *"
+              aria-label="Tell us about your condition"
+              maxLength={LIMITS.message}
               value={formData.message}
               onChange={handleInputChange}
               required
             ></textarea>
+            {/* Honeypot: positioned off-screen rather than display:none, which some bots detect */}
+            <div style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }} aria-hidden="true">
+              <input
+                type="text"
+                name="company"
+                tabIndex={-1}
+                autoComplete="off"
+                value={formData.company}
+                onChange={handleInputChange}
+              />
+            </div>
             <button type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Sending...' : 'Send Message'}
             </button>

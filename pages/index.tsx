@@ -1,61 +1,108 @@
 import { useState, useEffect, useRef } from 'react';
 import Seo from '@/components/Seo';
+import Icon from '@/components/Icon';
+import { BrandLogo } from '@/components/Logo';
+import Reveal from '@/components/Reveal';
+import Counter from '@/components/Counter';
 import { servicesData, type ServiceData } from '@/data/services';
+import { conditionGroups, approachCards, processSteps, trustPoints } from '@/data/conditions';
 import { faqs } from '@/data/faqs';
 import { site, townLabel } from '@/data/site';
 import { LIMITS, isValidEmail } from '@/lib/validate';
 
+const navLinks = [
+  { href: '#services', label: 'Services' },
+  { href: '#conditions', label: 'Conditions' },
+  { href: '#approach', label: 'Our Approach' },
+  { href: '#process', label: 'Process' },
+  { href: '#faq', label: 'FAQ' },
+];
+
+/** Only figures that are literally true of the practice — nothing invented. */
+const stats = [
+  { value: Object.keys(servicesData).length, suffix: '', label: 'Specialist service areas' },
+  { value: site.coverage.towns.length, suffix: '', label: 'Towns covered by home visit' },
+  { value: 60, suffix: ' min', label: 'Initial home assessment' },
+  { value: 0, suffix: '', label: 'GP referrals needed' },
+];
+
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
   const [activeService, setActiveService] = useState<ServiceData | null>(null);
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [year, setYear] = useState(0);
+  const [scrolled, setScrolled] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [processVisible, setProcessVisible] = useState(false);
+
   // `company` is a honeypot - hidden from people, filled in by form bots.
   const [formData, setFormData] = useState({ name: '', phone: '', email: '', message: '', company: '' });
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const formMountedAt = useRef(Date.now());
+  const processRef = useRef<HTMLDivElement>(null);
+  const modalCloseRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     setYear(new Date().getFullYear());
-    
-    // Smooth scroll for anchor links
-    const handleAnchorClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (target.tagName === 'A' && target.getAttribute('href')?.startsWith('#')) {
-        e.preventDefault();
-        const href = target.getAttribute('href');
-        if (href) {
-          const element = document.querySelector(href);
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            if (window.innerWidth <= 968) {
-              setMenuOpen(false);
-            }
-          }
-        }
-      }
+
+    const onScroll = () => {
+      const scrollTop = window.scrollY;
+      const height = document.documentElement.scrollHeight - window.innerHeight;
+      setScrolled(scrollTop > 24);
+      setProgress(height > 0 ? Math.min(scrollTop / height, 1) : 0);
     };
 
-    document.addEventListener('click', handleAnchorClick);
-    return () => document.removeEventListener('click', handleAnchorClick);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const openModal = (serviceKey: string) => {
-    setActiveService(servicesData[serviceKey]);
-    setModalOpen(true);
-  };
+  // Draws the process timeline rail once the section is in view.
+  useEffect(() => {
+    const node = processRef.current;
+    if (!node || typeof IntersectionObserver === 'undefined') {
+      setProcessVisible(true);
+      return;
+    }
 
-  const closeModal = () => {
-    setModalOpen(false);
-    setActiveService(null);
-  };
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setProcessVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.25 }
+    );
 
-  const toggleFaq = (index: number) => {
-    setOpenFaq(openFaq === index ? null : index);
-  };
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  // Modal: lock scroll, focus the close button, close on Escape.
+  useEffect(() => {
+    if (!activeService) return;
+
+    const opener = document.activeElement as HTMLElement | null;
+    modalCloseRef.current?.focus();
+    const { overflow } = document.body.style;
+    document.body.style.overflow = 'hidden';
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setActiveService(null);
+    };
+    document.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = overflow;
+      opener?.focus?.();
+    };
+  }, [activeService]);
+
+  const toggleFaq = (index: number) => setOpenFaq(openFaq === index ? null : index);
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -85,7 +132,7 @@ export default function Home() {
 
       setFormSubmitted(true);
       setFormData({ name: '', phone: '', email: '', message: '', company: '' });
-      
+
       // Reset success message after 5 seconds
       setTimeout(() => setFormSubmitted(false), 5000);
     } catch (error) {
@@ -105,1229 +152,582 @@ export default function Home() {
     <>
       <Seo />
 
-      <style jsx global>{`
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-        }
-
-        body {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-          line-height: 1.6;
-          color: #1a1a1a;
-          background: #ffffff;
-        }
-
-        nav {
-          background: rgba(255, 255, 255, 0.98);
-          backdrop-filter: blur(10px);
-          position: sticky;
-          top: 0;
-          z-index: 100;
-          border-bottom: 1px solid #e8e8e8;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-        }
-
-        .nav-container {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 1.25rem 2rem;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-
-        .logo {
-          font-family: Georgia, serif;
-          font-size: 1.5rem;
-          font-weight: 600;
-          color: #2563eb;
-        }
-
-        .nav-links {
-          display: flex;
-          gap: 2rem;
-          list-style: none;
-        }
-
-        .nav-links a {
-          color: #4b5563;
-          text-decoration: none;
-          font-weight: 500;
-          transition: color 0.3s;
-        }
-
-        .nav-links a:hover {
-          color: #2563eb;
-        }
-
-        .menu-toggle {
-          display: none;
-          background: none;
-          border: none;
-          font-size: 1.5rem;
-          cursor: pointer;
-        }
-
-        .hero {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 5rem 2rem;
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 4rem;
-          align-items: center;
-        }
-
-        .hero-content h1 {
-          font-family: Georgia, 'Times New Roman', serif;
-          font-size: 3.5rem;
-          line-height: 1.15;
-          margin-bottom: 1.5rem;
-          font-weight: 500;
-          color: #1e293b;
-        }
-
-        .hero-content .highlight {
-          color: #2563eb;
-        }
-
-        .hero-content p {
-          font-size: 1.25rem;
-          color: #64748b;
-          margin-bottom: 2rem;
-          line-height: 1.7;
-        }
-
-        .credentials {
-          display: flex;
-          gap: 1rem;
-          margin-bottom: 2rem;
-          flex-wrap: wrap;
-        }
-
-        .credential-badge {
-          background: #eff6ff;
-          color: #1e40af;
-          padding: 0.5rem 1rem;
-          border-radius: 20px;
-          font-size: 0.9rem;
-          font-weight: 600;
-          border: 1px solid #bfdbfe;
-        }
-
-        .cta-button {
-          background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-          color: white;
-          padding: 1rem 2rem;
-          border: none;
-          border-radius: 12px;
-          font-size: 1.05rem;
-          font-weight: 600;
-          cursor: pointer;
-          display: inline-flex;
-          align-items: center;
-          gap: 0.75rem;
-          transition: all 0.3s;
-          text-decoration: none;
-          box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-        }
-
-        .cta-button:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
-        }
-
-        .hero-image {
-          height: 500px;
-          border-radius: 20px;
-          overflow: hidden;
-          box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-        }
-
-        .hero-image img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          transition: transform 0.5s;
-        }
-
-        .hero-image:hover img {
-          transform: scale(1.05);
-        }
-
-        .trust-section {
-          background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-          padding: 4rem 2rem;
-        }
-
-        .trust-container {
-          max-width: 1100px;
-          margin: 0 auto;
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-          gap: 2rem;
-        }
-
-        .trust-card {
-          background: white;
-          padding: 2rem;
-          border-radius: 16px;
-          display: flex;
-          align-items: center;
-          gap: 1.25rem;
-          transition: all 0.3s;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-          border: 1px solid rgba(37, 99, 235, 0.1);
-        }
-
-        .trust-card:hover {
-          box-shadow: 0 8px 24px rgba(37, 99, 235, 0.15);
-          transform: translateY(-4px);
-        }
-
-        .trust-icon {
-          font-size: 2.5rem;
-          filter: drop-shadow(0 2px 4px rgba(37, 99, 235, 0.2));
-        }
-
-        .trust-card strong {
-          color: #1e293b;
-          font-size: 1.05rem;
-        }
-
-        .section-wrapper {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 6rem 2rem;
-        }
-
-        .section-title {
-          font-family: Georgia, 'Times New Roman', serif;
-          font-size: 2.75rem;
-          margin-bottom: 1rem;
-          font-weight: 500;
-          color: #1e293b;
-          text-align: center;
-        }
-
-        .section-subtitle {
-          text-align: center;
-          color: #64748b;
-          font-size: 1.15rem;
-          margin-bottom: 4rem;
-          max-width: 700px;
-          margin-left: auto;
-          margin-right: auto;
-        }
-
-        .services-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: 2rem;
-        }
-
-        .service-card {
-          width: 100%;
-          display: block;
-          text-align: left;
-          font-family: inherit;
-          font-size: 1rem;
-          color: inherit;
-          background: white;
-          padding: 2rem;
-          border-radius: 16px;
-          border: 2px solid #e2e8f0;
-          cursor: pointer;
-          transition: all 0.3s;
-          position: relative;
-          overflow: hidden;
-        }
-
-        .service-card::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 4px;
-          background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-          transform: scaleX(0);
-          transition: transform 0.3s;
-        }
-
-        .service-card:hover::before {
-          transform: scaleX(1);
-        }
-
-        .service-card:hover {
-          border-color: #3b82f6;
-          box-shadow: 0 12px 32px rgba(37, 99, 235, 0.15);
-          transform: translateY(-6px);
-        }
-
-        .service-icon {
-          font-size: 2.5rem;
-          margin-bottom: 1rem;
-        }
-
-        .service-card h3 {
-          font-size: 1.4rem;
-          margin-bottom: 0.75rem;
-          font-weight: 600;
-          color: #1e293b;
-        }
-
-        .service-card p {
-          color: #64748b;
-          margin-bottom: 1rem;
-          line-height: 1.6;
-        }
-
-        .service-card .click-hint {
-          font-size: 0.9rem;
-          color: #3b82f6;
-          font-weight: 500;
-        }
-
-        .conditions-section {
-          background: #f8fafc;
-          padding: 6rem 2rem;
-        }
-
-        .conditions-grid {
-          max-width: 1200px;
-          margin: 3rem auto 0;
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 2rem;
-        }
-
-        .condition-category {
-          background: white;
-          padding: 2rem;
-          border-radius: 16px;
-          border: 2px solid #e2e8f0;
-        }
-
-        .condition-category h3 {
-          color: #1e293b;
-          font-size: 1.3rem;
-          margin-bottom: 1rem;
-          font-weight: 600;
-        }
-
-        .condition-category ul {
-          list-style: none;
-          padding: 0;
-        }
-
-        .condition-category li {
-          padding: 0.5rem 0;
-          color: #475569;
-          border-bottom: 1px solid #f1f5f9;
-        }
-
-        .condition-category li:last-child {
-          border-bottom: none;
-        }
-
-        .approach-section {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 6rem 2rem;
-        }
-
-        .approach-grid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 2rem;
-          margin-top: 3rem;
-        }
-
-        .approach-card {
-          background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-          padding: 2.5rem;
-          border-radius: 16px;
-          border: 2px solid #e2e8f0;
-        }
-
-        .approach-card h3 {
-          font-size: 1.5rem;
-          color: #1e293b;
-          margin-bottom: 1rem;
-          font-weight: 600;
-        }
-
-        .approach-card p {
-          color: #64748b;
-          line-height: 1.8;
-          margin-bottom: 1rem;
-        }
-
-        .approach-card ul {
-          list-style: none;
-          padding: 0;
-        }
-
-        .approach-card li {
-          color: #475569;
-          padding: 0.5rem 0;
-          padding-left: 1.5rem;
-          position: relative;
-        }
-
-        .approach-card li::before {
-          content: '→';
-          position: absolute;
-          left: 0;
-          color: #3b82f6;
-        }
-
-        .process-section {
-          background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-          padding: 6rem 2rem;
-        }
-
-        .process-container {
-          max-width: 1100px;
-          margin: 0 auto;
-        }
-
-        .process-steps {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 2rem;
-          margin-top: 3rem;
-        }
-
-        .process-step {
-          background: white;
-          padding: 2rem;
-          border-radius: 16px;
-          text-align: center;
-          position: relative;
-          border: 2px solid #e2e8f0;
-        }
-
-        .process-number {
-          width: 50px;
-          height: 50px;
-          background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-          color: white;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.5rem;
-          font-weight: 700;
-          margin: 0 auto 1rem;
-        }
-
-        .process-step h3 {
-          font-size: 1.2rem;
-          color: #1e293b;
-          margin-bottom: 0.75rem;
-        }
-
-        .process-step p {
-          color: #64748b;
-          font-size: 0.95rem;
-          line-height: 1.6;
-        }
-
-        .faq-section {
-          background: #f8fafc;
-          padding: 6rem 2rem;
-        }
-
-        .faq-container {
-          max-width: 900px;
-          margin: 0 auto;
-        }
-
-        .faq-item {
-          background: white;
-          margin-bottom: 1rem;
-          border-radius: 12px;
-          border: 2px solid #e2e8f0;
-          overflow: hidden;
-        }
-
-        .faq-question {
-          width: 100%;
-          text-align: left;
-          font-family: inherit;
-          background: none;
-          border: none;
-          padding: 1.5rem;
-          cursor: pointer;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          font-weight: 600;
-          color: #1e293b;
-          font-size: 1.1rem;
-        }
-
-        .faq-question:hover {
-          background: #f8fafc;
-        }
-
-        .faq-answer {
-          padding: 0 1.5rem 1.5rem;
-          color: #64748b;
-          line-height: 1.7;
-          display: none;
-        }
-
-        .faq-answer.active {
-          display: block;
-        }
-
-        .contact-section {
-          background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-          color: #f1f5f9;
-          padding: 6rem 2rem;
-        }
-
-        .contact-container {
-          max-width: 1100px;
-          margin: 0 auto;
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 4rem;
-        }
-
-        .contact-info h2 {
-          font-family: Georgia, 'Times New Roman', serif;
-          font-size: 2.5rem;
-          margin-bottom: 1.5rem;
-          font-weight: 500;
-        }
-
-        .contact-info p {
-          color: #cbd5e1;
-          margin-bottom: 2.5rem;
-          font-size: 1.15rem;
-          line-height: 1.7;
-        }
-
-        .contact-details {
-          display: flex;
-          flex-direction: column;
-          gap: 1.5rem;
-        }
-
-        .contact-item {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-          font-size: 1.1rem;
-        }
-
-        .contact-item a {
-          color: #f1f5f9;
-          text-decoration: none;
-        }
-
-        .coverage-area {
-          margin-top: 2rem;
-          padding: 1.5rem;
-          background: rgba(255,255,255,0.1);
-          border-radius: 12px;
-        }
-
-        .coverage-area h3 {
-          margin-bottom: 1rem;
-          font-size: 1.2rem;
-        }
-
-        .coverage-area p {
-          font-size: 1rem;
-          margin-bottom: 1rem;
-        }
-
-        .contact-form {
-          background: white;
-          padding: 2.5rem;
-          border-radius: 20px;
-          box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-
-        .contact-form input,
-        .contact-form textarea {
-          width: 100%;
-          padding: 1rem;
-          margin-bottom: 1.25rem;
-          border: 2px solid #e2e8f0;
-          border-radius: 12px;
-          font-family: inherit;
-          font-size: 1rem;
-          transition: all 0.3s;
-        }
-
-        .contact-form input:focus,
-        .contact-form textarea:focus {
-          outline: none;
-          border-color: #3b82f6;
-          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        .contact-form textarea {
-          min-height: 140px;
-          resize: vertical;
-        }
-
-        .contact-form button {
-          width: 100%;
-          background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-          color: white;
-          padding: 1rem;
-          border: none;
-          border-radius: 12px;
-          font-size: 1.05rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.3s;
-          box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-        }
-
-        .contact-form button:hover:not(:disabled) {
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
-        }
-
-        .contact-form button:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-        }
-
-        footer {
-          text-align: center;
-          padding: 2.5rem;
-          font-size: 0.95rem;
-          color: #64748b;
-          background: #f8fafc;
-          border-top: 1px solid #e2e8f0;
-        }
-
-        .modal {
-          display: none;
-          position: fixed;
-          inset: 0;
-          background: rgba(0,0,0,0.6);
-          backdrop-filter: blur(4px);
-          z-index: 1000;
-          align-items: center;
-          justify-content: center;
-          padding: 2rem;
-        }
-
-        .modal.active {
-          display: flex;
-        }
-
-        .modal-content {
-          background: white;
-          padding: 2.5rem;
-          border-radius: 20px;
-          max-width: 600px;
-          width: 100%;
-          max-height: 80vh;
-          overflow-y: auto;
-          position: relative;
-          animation: modalFadeIn 0.3s ease;
-          box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-
-        @keyframes modalFadeIn {
-          from {
-            opacity: 0;
-            transform: scale(0.9) translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-          }
-        }
-
-        .modal-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 1.5rem;
-        }
-
-        .modal-header h3 {
-          font-family: Georgia, 'Times New Roman', serif;
-          font-size: 1.75rem;
-          font-weight: 500;
-          color: #1e293b;
-        }
-
-        .close-btn {
-          background: #f1f5f9;
-          border: none;
-          font-size: 1.5rem;
-          cursor: pointer;
-          padding: 0.5rem;
-          line-height: 1;
-          border-radius: 8px;
-          transition: all 0.3s;
-          width: 36px;
-          height: 36px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .close-btn:hover {
-          background: #e2e8f0;
-        }
-
-        .modal-content > p {
-          color: #64748b;
-          margin-bottom: 1.25rem;
-          font-weight: 500;
-        }
-
-        .modal-content ul {
-          list-style: none;
-          padding: 0;
-        }
-
-        .modal-content ul li {
-          color: #475569;
-          margin-bottom: 0.75rem;
-          padding-left: 1.5rem;
-          position: relative;
-          line-height: 1.6;
-        }
-
-        .modal-content ul li::before {
-          content: '✓';
-          position: absolute;
-          left: 0;
-          color: #3b82f6;
-          font-weight: bold;
-        }
-
-        @media (max-width: 968px) {
-          .hero {
-            grid-template-columns: 1fr;
-            padding: 4rem 1.5rem;
-            gap: 3rem;
-          }
-
-          .hero-content h1 {
-            font-size: 2.5rem;
-          }
-
-          .hero-image {
-            height: 400px;
-          }
-
-          .contact-container,
-          .approach-grid {
-            grid-template-columns: 1fr;
-            gap: 3rem;
-          }
-
-          .conditions-grid {
-            grid-template-columns: repeat(2, 1fr);
-          }
-
-          .process-steps {
-            grid-template-columns: repeat(2, 1fr);
-          }
-
-          .nav-links {
-            display: none;
-          }
-
-          .menu-toggle {
-            display: block;
-          }
-
-          .nav-links.active {
-            display: flex;
-            flex-direction: column;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            padding: 1rem 2rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-          }
-        }
-
-        @media (max-width: 640px) {
-          .hero-content h1 {
-            font-size: 2rem;
-          }
-
-          .section-title {
-            font-size: 2rem;
-          }
-
-          .hero-image {
-            height: 300px;
-          }
-
-          .conditions-grid,
-          .process-steps {
-            grid-template-columns: 1fr;
-          }
-
-          .services-grid,
-          .trust-container {
-            grid-template-columns: 1fr;
-          }
-        }
-      `}</style>
-
-      <nav>
-        <div className="nav-container">
-          <div className="logo">Home Physio</div>
-          <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)}>☰</button>
-          <ul className={`nav-links ${menuOpen ? 'active' : ''}`}>
-            <li><a href="#home">Home</a></li>
-            <li><a href="#services">Services</a></li>
-            <li><a href="#approach">Our Approach</a></li>
-            <li><a href="#process">Process</a></li>
-            <li><a href="#faq">FAQ</a></li>
-            <li><a href="#contact">Contact</a></li>
-          </ul>
-        </div>
-      </nav>
-
-      <section id="home" className="hero">
-        <div className="hero-content">
-          <h1><span className="highlight">Home Physiotherapy</span> in Manchester &amp; Cheshire</h1>
-          <div className="credentials">
-            <span className="credential-badge">HCPC Registered</span>
-            <span className="credential-badge">MCSP Chartered</span>
-            <span className="credential-badge">BSc (Hons) Physiotherapy</span>
-          </div>
-          <p>Delivering specialist, evidence-based physiotherapy care in the comfort and safety of your own home, across Stockport, Altrincham, Wilmslow, Macclesfield and south Manchester. Comprehensive rehabilitation programmes tailored to your individual needs and goals.</p>
-          <a href="#contact" className="cta-button">
-            <span>📅</span> Book Your Consultation
+      <header className="nav" data-scrolled={scrolled}>
+        <div className="nav-inner">
+          <a href="#home" className="logo" aria-label={`${site.brandName} - back to top`}>
+            <BrandLogo />
+            {site.brandName}
           </a>
-        </div>
-        <div className="hero-image">
-          <img 
-            src="/evhastasi.jpg" 
-            alt="Physiotherapist supporting a patient through a mobility exercise at home"
-            width={880}
-            height={1000}
-            loading="eager"
-            decoding="async"
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          />
-        </div>
-      </section>
 
-      <section className="trust-section">
-        <div className="trust-container">
-          <div className="trust-card">
-            <span className="trust-icon">🛡️</span>
+          <button
+            className="menu-toggle"
+            aria-expanded={menuOpen}
+            aria-controls="nav-links"
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            <span />
+          </button>
+
+          <nav id="nav-links" className="nav-links" data-open={menuOpen}>
+            {navLinks.map((link) => (
+              <a key={link.href} href={link.href} onClick={() => setMenuOpen(false)}>
+                {link.label}
+              </a>
+            ))}
+            <a href="#contact" className="nav-cta" onClick={() => setMenuOpen(false)}>
+              Book Consultation
+            </a>
+          </nav>
+        </div>
+        <div className="nav-progress" style={{ transform: `scaleX(${progress})`, width: '100%' }} />
+      </header>
+
+      <main>
+        <section id="home" className="hero">
+          <div className="aurora" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </div>
+
+          <div className="shell hero-grid">
             <div>
-              <strong>HCPC Registered</strong>
-              <p style={{ margin: 0, fontSize: '0.9rem', color: '#64748b' }}>Health & Care Professions Council</p>
+              <h1 className="rise" style={{ animationDelay: '0.15s' }}>
+                <span className="highlight">Home Physiotherapy</span> in Manchester &amp; Cheshire
+              </h1>
+
+              {/* Credentials live in the trust strip directly below — repeating them
+                  here only crowded the hero, badly so once they wrapped on mobile. */}
+              <p className="hero-lede rise" style={{ animationDelay: '0.28s' }}>
+                Delivering specialist, evidence-based physiotherapy care in the comfort and safety of
+                your own home, across Stockport, Altrincham, Wilmslow, Macclesfield and south
+                Manchester. Comprehensive rehabilitation programmes tailored to your individual needs
+                and goals.
+              </p>
+
+              <div className="hero-actions rise" style={{ animationDelay: '0.4s' }}>
+                <a href="#contact" className="btn btn--primary">
+                  <Icon name="calendar" size={18} />
+                  Book Your Consultation
+                </a>
+                <a href={site.phoneHref} className="btn btn--ghost">
+                  <Icon name="phone" size={17} />
+                  {site.phone}
+                </a>
+              </div>
+            </div>
+
+            <div className="hero-figure">
+              <div className="hero-image">
+                <img
+                  src="/evhastasi.jpg"
+                  alt="Physiotherapist supporting a patient through a mobility exercise at home"
+                  width={880}
+                  height={1000}
+                  loading="eager"
+                  decoding="async"
+                />
+              </div>
+              <div className="hero-badge">
+                <span className="hero-badge-icon">
+                  <Icon name="home" size={20} />
+                </span>
+                <div>
+                  <strong>No clinic to travel to</strong>
+                  <span>Every session in your own home</span>
+                </div>
+              </div>
             </div>
           </div>
-          <div className="trust-card">
-            <span className="trust-icon">⚡</span>
+        </section>
+
+        <section className="section section--surface" style={{ paddingBlock: 'clamp(3rem, 5vw, 4.5rem)' }}>
+          <div className="shell">
+            <div className="trust-grid">
+              {trustPoints.map((point, i) => (
+                <Reveal key={point.title} delay={i * 90}>
+                  <div className="trust-card">
+                    <span className="trust-icon">
+                      <Icon name={point.icon} size={24} />
+                    </span>
+                    <div>
+                      <strong>{point.title}</strong>
+                      <p>{point.body}</p>
+                    </div>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="services" className="section">
+          <div className="shell">
+            <Reveal>
+              <div className="section-head">
+                <p className="eyebrow">Specialist Services</p>
+                <h2>
+                  Six areas of practice, <em>one clinician</em>
+                </h2>
+                <p>
+                  Comprehensive physiotherapy care across a wide range of conditions, delivered with
+                  expertise and compassion in your home environment.
+                </p>
+              </div>
+            </Reveal>
+
+            <div className="services-grid">
+              {Object.entries(servicesData).map(([key, service], i) => (
+                <Reveal key={key} delay={i * 70}>
+                  <button
+                    type="button"
+                    className="service-card"
+                    onClick={() => setActiveService(service)}
+                  >
+                    <span className="service-icon">
+                      <Icon name={service.icon} size={26} />
+                    </span>
+                    <h3>{service.title}</h3>
+                    <p>{service.blurb}</p>
+                    <span className="click-hint">
+                      View conditions &amp; treatments
+                      <Icon name="arrow" size={15} />
+                    </span>
+                  </button>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="section stats-section">
+          <div className="shell">
+            <Reveal from="scale">
+              <div className="stats">
+                {stats.map((stat) => (
+                  <div className="stat" key={stat.label}>
+                    <div className="stat-value">
+                      <Counter to={stat.value} suffix={stat.suffix} />
+                    </div>
+                    <p className="stat-label">{stat.label}</p>
+                  </div>
+                ))}
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
+        <section id="conditions" className="section section--surface">
+          <div className="shell">
+            <Reveal>
+              <div className="section-head">
+                <p className="eyebrow">Conditions We Treat</p>
+                <h2>
+                  Expert care across <em>every stage of recovery</em>
+                </h2>
+                <p>Expert physiotherapy for a comprehensive range of medical conditions.</p>
+              </div>
+            </Reveal>
+
+            <div className="conditions-grid">
+              {conditionGroups.map((group, i) => (
+                <Reveal key={group.title} delay={i * 60}>
+                  <div className="condition-card">
+                    <h3>
+                      <Icon name={group.icon} size={20} />
+                      {group.title}
+                    </h3>
+                    <ul>
+                      {group.items.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="approach" className="section">
+          <div className="shell">
+            <Reveal>
+              <div className="section-head">
+                <p className="eyebrow">Our Treatment Approach</p>
+                <h2>
+                  Clinical rigour, <em>delivered with care</em>
+                </h2>
+                <p>
+                  Evidence-based physiotherapy combining clinical expertise with compassionate,
+                  patient-centered care.
+                </p>
+              </div>
+            </Reveal>
+
+            <div className="approach-grid">
+              {approachCards.map((card, i) => (
+                <Reveal key={card.title} delay={i * 80} from={i % 2 === 0 ? 'left' : 'right'}>
+                  <div className="approach-card" data-index={String(i + 1).padStart(2, '0')}>
+                    <h3>{card.title}</h3>
+                    <p>{card.intro}</p>
+                    <ul>
+                      {card.points.map((point) => (
+                        <li key={point}>
+                          <Icon name="check" size={15} strokeWidth={2} />
+                          {point}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="process" className="section section--tint">
+          <div className="shell">
+            <Reveal>
+              <div className="section-head">
+                <p className="eyebrow">How It Works</p>
+                <h2>
+                  Four steps, <em>no waiting list</em>
+                </h2>
+                <p>A simple, straightforward process from initial contact to ongoing care.</p>
+              </div>
+            </Reveal>
+
+            <div
+              ref={processRef}
+              className={`process-wrap ${processVisible ? 'is-visible' : ''}`}
+            >
+              <div className="process-rail" aria-hidden="true" />
+              <div className="process-grid">
+                {processSteps.map((step, i) => (
+                  <Reveal key={step.title} delay={i * 110}>
+                    <div className="process-step">
+                      <div className="process-number">{i + 1}</div>
+                      <h3>{step.title}</h3>
+                      <p>{step.body}</p>
+                    </div>
+                  </Reveal>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="faq" className="section">
+          <div className="shell">
+            <div className="faq-layout">
+              <Reveal className="faq-aside" from="left">
+                <p className="eyebrow">Frequently Asked Questions</p>
+                <h2>
+                  Everything you need <em>to know first</em>
+                </h2>
+                <p>
+                  Fees, coverage, session length and paperwork &mdash; the things worth knowing
+                  before you commit to anything.
+                </p>
+              </Reveal>
+
+              <Reveal delay={100}>
+                <div className="faq-list">
+                  {faqs.map((faq, index) => {
+                    const isOpen = openFaq === index;
+                    return (
+                      <div className="faq-item" key={faq.question}>
+                        <button
+                          className="faq-question"
+                          onClick={() => toggleFaq(index)}
+                          aria-expanded={isOpen}
+                          aria-controls={`faq-answer-${index}`}
+                          id={`faq-button-${index}`}
+                        >
+                          {faq.question}
+                          <span className="faq-sign">
+                            <Icon name="chevron" size={16} strokeWidth={2} />
+                          </span>
+                        </button>
+                        <div
+                          className="faq-answer"
+                          id={`faq-answer-${index}`}
+                          role="region"
+                          aria-labelledby={`faq-button-${index}`}
+                          data-open={isOpen}
+                        >
+                          <div>
+                            <p>{faq.answer}</p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </Reveal>
+            </div>
+          </div>
+        </section>
+
+        <section id="contact" className="contact section">
+          <div className="shell">
+            <div className="contact-grid">
+              <Reveal from="left">
+                <p className="eyebrow">Get in Touch</p>
+                <h2>
+                  Start your recovery <em>at home</em>
+                </h2>
+                <p className="contact-lede">
+                  Tell me what&apos;s happened and what you want to get back to. I&apos;ll answer any
+                  questions and we&apos;ll arrange a visit that suits you.
+                </p>
+
+                <div className="contact-lines">
+                  <a href={site.phoneHref} className="contact-item">
+                    <Icon name="phone" size={19} />
+                    {site.phone}
+                  </a>
+                  <a href={`mailto:${site.email}`} className="contact-item">
+                    <Icon name="mail" size={19} />
+                    {site.email}
+                  </a>
+                </div>
+
+                <div className="coverage-area">
+                  <h3>
+                    <Icon name="pin" size={14} /> Areas We Cover
+                  </h3>
+                  {/* Inline rather than chips: all 21 names still appear in the copy
+                      for local search, in a fraction of the height. */}
+                  <p className="coverage-towns">
+                    {site.coverage.towns.map(townLabel).join(' · ')}
+                  </p>
+                  <p className="coverage-note">
+                    No clinic to travel to &mdash; every session takes place in your own home. Just
+                    outside these areas? Send your postcode and we&apos;ll confirm.
+                  </p>
+                </div>
+              </Reveal>
+
+              <Reveal from="right" delay={100}>
+                <form className="contact-form" onSubmit={handleFormSubmit} noValidate>
+                  <div className="form-head">
+                    <h3>Request a consultation</h3>
+                    <p>We typically respond within {site.responseTime}.</p>
+                  </div>
+
+                  <div aria-live="polite">
+                    {formError && (
+                      <div className="form-alert form-alert--err">
+                        <Icon name="arrow" size={16} />
+                        {formError}
+                      </div>
+                    )}
+                    {formSubmitted && (
+                      <div className="form-alert form-alert--ok">
+                        <Icon name="check" size={16} strokeWidth={2.4} />
+                        Thank you! We&apos;ll get back to you within {site.responseTime}.
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="field">
+                    <label htmlFor="name">Your Name *</label>
+                    <input
+                      id="name"
+                      type="text"
+                      name="name"
+                      placeholder="Jane Smith"
+                      autoComplete="name"
+                      maxLength={LIMITS.name}
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="field">
+                    <label htmlFor="phone">Phone Number *</label>
+                    <input
+                      id="phone"
+                      type="tel"
+                      name="phone"
+                      placeholder="07xxx xxxxxx"
+                      autoComplete="tel"
+                      maxLength={LIMITS.phone}
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="field">
+                    <label htmlFor="email">Email Address</label>
+                    <input
+                      id="email"
+                      type="email"
+                      name="email"
+                      placeholder="jane@example.com"
+                      autoComplete="email"
+                      maxLength={LIMITS.email}
+                      value={formData.email}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+
+                  <div className="field">
+                    <label htmlFor="message">How can we help? *</label>
+                    <textarea
+                      id="message"
+                      name="message"
+                      placeholder="Tell us about your condition and how we can help..."
+                      maxLength={LIMITS.message}
+                      value={formData.message}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+
+                  {/* Honeypot: hidden from people, irresistible to form bots. */}
+                  <div className="decoy" aria-hidden="true">
+                    <label htmlFor="company">Company</label>
+                    <input
+                      id="company"
+                      type="text"
+                      name="company"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      value={formData.company}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+
+                  <button type="submit" className="btn btn--primary" disabled={isSubmitting}>
+                    {isSubmitting ? 'Sending...' : 'Send Message'}
+                    {!isSubmitting && <Icon name="arrow" size={17} />}
+                  </button>
+
+                  <p className="form-note">
+                    Your details are used only to reply to this enquiry.
+                  </p>
+                </form>
+              </Reveal>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer className="footer">
+        <div className="shell">
+          <div className="footer-grid">
+            <div className="footer-brand">
+              <a href="#home" className="logo">
+                <BrandLogo />
+                {site.brandName}
+              </a>
+              <p className="footer-bio">
+                {site.practitioner} {site.postNominals} &ndash; {site.role}. Specialist home
+                physiotherapy across {site.coverage.label}.
+              </p>
+            </div>
+
             <div>
-              <strong>Chartered Physiotherapist</strong>
-              <p style={{ margin: 0, fontSize: '0.9rem', color: '#64748b' }}>Member of CSP (MCSP)</p>
+              <h4>Sections</h4>
+              <ul>
+                {navLinks.map((link) => (
+                  <li key={link.href}>
+                    <a href={link.href}>{link.label}</a>
+                  </li>
+                ))}
+              </ul>
             </div>
-          </div>
-          <div className="trust-card">
-            <span className="trust-icon">🏠</span>
+
             <div>
-              <strong>Home Visit Specialist</strong>
-              <p style={{ margin: 0, fontSize: '0.9rem', color: '#64748b' }}>Fully Insured & DBS Checked</p>
+              <h4>Contact</h4>
+              <ul>
+                <li>
+                  <a href={site.phoneHref}>{site.phone}</a>
+                </li>
+                <li>
+                  <a href={`mailto:${site.email}`}>{site.email}</a>
+                </li>
+                <li>Home visits by appointment</li>
+              </ul>
             </div>
           </div>
-        </div>
-      </section>
 
-      <section id="services" className="section-wrapper">
-        <h2 className="section-title">Specialist Services</h2>
-        <p className="section-subtitle">Comprehensive physiotherapy care across a wide range of conditions, delivered with expertise and compassion in your home environment</p>
-        <div className="services-grid">
-          <button type="button" className="service-card" onClick={() => openModal('neurological')}>
-            <div className="service-icon">🧠</div>
-            <h3>Neurological Physiotherapy</h3>
-            <p>Specialist rehabilitation for neurological conditions including stroke, Parkinson's, MS, and brain injury. Focus on maximizing independence and quality of life.</p>
-            <p className="click-hint">View conditions & treatments →</p>
-          </button>
-          <button type="button" className="service-card" onClick={() => openModal('geriatric')}>
-            <div className="service-icon">👴</div>
-            <h3>Geriatric Rehabilitation</h3>
-            <p>Comprehensive care for older adults addressing frailty, osteoarthritis, reduced mobility, and post-hospital recovery. Evidence-based interventions to maintain independence.</p>
-            <p className="click-hint">View conditions & treatments →</p>
-          </button>
-          <button type="button" className="service-card" onClick={() => openModal('postOp')}>
-            <div className="service-icon">🏥</div>
-            <h3>Post-operative Rehabilitation</h3>
-            <p>Structured recovery programmes following joint replacements, spinal surgery, and orthopaedic procedures. Optimizing healing and restoring function safely.</p>
-            <p className="click-hint">View conditions & treatments →</p>
-          </button>
-          <button type="button" className="service-card" onClick={() => openModal('balance')}>
-            <div className="service-icon">⚖️</div>
-            <h3>Balance & Falls Prevention</h3>
-            <p>Targeted assessment and treatment for balance disorders, vestibular conditions, and recurrent falls. Building confidence and reducing fall risk.</p>
-            <p className="click-hint">View conditions & treatments →</p>
-          </button>
-          <button type="button" className="service-card" onClick={() => openModal('msk')}>
-            <div className="service-icon">🦴</div>
-            <h3>Musculoskeletal Therapy</h3>
-            <p>Treatment for back pain, neck pain, arthritis, and sports injuries. Manual therapy, exercise prescription, and pain management strategies.</p>
-            <p className="click-hint">View conditions & treatments →</p>
-          </button>
-          <button type="button" className="service-card" onClick={() => openModal('respiratory')}>
-            <div className="service-icon">🫁</div>
-            <h3>Respiratory Physiotherapy</h3>
-            <p>Breathing exercises, airway clearance techniques, and rehabilitation for COPD, post-COVID recovery, and chronic respiratory conditions.</p>
-            <p className="click-hint">View conditions & treatments →</p>
-          </button>
-        </div>
-      </section>
+          {/* Closing brand lockup — the last thing on the page */}
+          <div className="footer-signoff">
+            <img className="signoff-logo" src={`/logo-${site.brandLogo}.png`} alt="" width={256} height={256} />
+            <span className="signoff-name">{site.brandName}</span>
+            <span className="signoff-tag">{site.role} &middot; {site.coverage.label}</span>
+          </div>
 
-      <section className="conditions-section">
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <h2 className="section-title">Conditions We Treat</h2>
-          <p className="section-subtitle">Expert physiotherapy for a comprehensive range of medical conditions</p>
-        </div>
-        <div className="conditions-grid">
-          <div className="condition-category">
-            <h3>🧠 Neurological</h3>
-            <ul>
-              <li>Stroke (CVA) Recovery</li>
-              <li>Parkinson's Disease</li>
-              <li>Multiple Sclerosis (MS)</li>
-              <li>Motor Neurone Disease</li>
-              <li>Brain & Spinal Cord Injury</li>
-              <li>Peripheral Neuropathy</li>
-              <li>Cerebral Palsy</li>
-            </ul>
-          </div>
-          <div className="condition-category">
-            <h3>🦴 Musculoskeletal</h3>
-            <ul>
-              <li>Lower Back Pain</li>
-              <li>Neck Pain & Whiplash</li>
-              <li>Osteoarthritis</li>
-              <li>Rheumatoid Arthritis</li>
-              <li>Sports Injuries</li>
-              <li>Tendinopathies</li>
-              <li>Ligament Sprains</li>
-            </ul>
-          </div>
-          <div className="condition-category">
-            <h3>🏥 Post-Surgical</h3>
-            <ul>
-              <li>Hip Replacement</li>
-              <li>Knee Replacement</li>
-              <li>Spinal Surgery</li>
-              <li>Shoulder Surgery</li>
-              <li>Fracture Rehabilitation</li>
-              <li>ACL Reconstruction</li>
-              <li>General Orthopaedic Surgery</li>
-            </ul>
-          </div>
-          <div className="condition-category">
-            <h3>⚖️ Balance & Mobility</h3>
-            <ul>
-              <li>Recurrent Falls</li>
-              <li>Balance Disorders</li>
-              <li>Vestibular Dysfunction</li>
-              <li>Dizziness & Vertigo</li>
-              <li>Gait Abnormalities</li>
-              <li>Muscle Weakness</li>
-              <li>Deconditioning</li>
-            </ul>
-          </div>
-          <div className="condition-category">
-            <h3>🫁 Respiratory</h3>
-            <ul>
-              <li>COPD Management</li>
-              <li>Post-COVID Recovery</li>
-              <li>Bronchiectasis</li>
-              <li>Cystic Fibrosis</li>
-              <li>Chronic Breathlessness</li>
-              <li>Pneumonia Recovery</li>
-              <li>Chest Infections</li>
-            </ul>
-          </div>
-          <div className="condition-category">
-            <h3>👴 Elderly Care</h3>
-            <ul>
-              <li>Frailty Syndrome</li>
-              <li>Post-Hospital Discharge</li>
-              <li>Reduced Mobility</li>
-              <li>General Weakness</li>
-              <li>End of Life Care</li>
-              <li>Palliative Physiotherapy</li>
-              <li>Age-Related Decline</li>
-            </ul>
+          <div className="footer-legal">
+            <span>
+              &copy; {year} {site.name}. All rights reserved.
+            </span>
+            <span>
+              HCPC Registered | Professional Liability Insurance (PLI) | Enhanced DBS
+            </span>
           </div>
         </div>
-      </section>
-
-      <section id="approach" className="approach-section">
-        <h2 className="section-title">Our Treatment Approach</h2>
-        <p className="section-subtitle">Evidence-based physiotherapy combining clinical expertise with compassionate, patient-centered care</p>
-        <div className="approach-grid">
-          <div className="approach-card">
-            <h3>Comprehensive Assessment</h3>
-            <p>Every treatment begins with a thorough clinical assessment including:</p>
-            <ul>
-              <li>Detailed medical history review</li>
-              <li>Functional movement analysis</li>
-              <li>Strength and flexibility testing</li>
-              <li>Balance and coordination evaluation</li>
-              <li>Pain assessment and management</li>
-              <li>Home environment safety review</li>
-            </ul>
-          </div>
-          <div className="approach-card">
-            <h3>Personalized Treatment Plans</h3>
-            <p>Tailored rehabilitation programmes designed specifically for you:</p>
-            <ul>
-              <li>Goal-oriented therapy sessions</li>
-              <li>Progressive exercise programmes</li>
-              <li>Manual therapy techniques</li>
-              <li>Education and self-management</li>
-              <li>Equipment prescription if needed</li>
-              <li>Regular progress monitoring</li>
-            </ul>
-          </div>
-          <div className="approach-card">
-            <h3>Evidence-Based Practice</h3>
-            <p>Treatment grounded in the latest clinical research and best practices:</p>
-            <ul>
-              <li>Current NICE guidelines followed</li>
-              <li>Neuroplasticity principles applied</li>
-              <li>Task-specific training methods</li>
-              <li>Functional rehabilitation focus</li>
-              <li>Outcome measure tracking</li>
-              <li>Continuous professional development</li>
-            </ul>
-          </div>
-          <div className="approach-card">
-            <h3>Holistic Care</h3>
-            <p>Addressing all aspects of your health and wellbeing:</p>
-            <ul>
-              <li>Physical and psychological support</li>
-              <li>Lifestyle and activity advice</li>
-              <li>Pain management strategies</li>
-              <li>Carer training and education</li>
-              <li>MDT communication and liaison</li>
-              <li>Long-term health promotion</li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <section id="process" className="process-section">
-        <div className="process-container">
-          <h2 className="section-title">How It Works</h2>
-          <p className="section-subtitle">A simple, straightforward process from initial contact to ongoing care</p>
-          <div className="process-steps">
-            <div className="process-step">
-              <div className="process-number">1</div>
-              <h3>Initial Contact</h3>
-              <p>Call, email, or use our contact form to discuss your needs and book a free consultation.</p>
-            </div>
-            <div className="process-step">
-              <div className="process-number">2</div>
-              <h3>Assessment Visit</h3>
-              <p>Comprehensive 60-minute assessment in your home to evaluate your condition and goals.</p>
-            </div>
-            <div className="process-step">
-              <div className="process-number">3</div>
-              <h3>Treatment Plan</h3>
-              <p>Personalized rehabilitation programme developed collaboratively with clear, measurable objectives.</p>
-            </div>
-            <div className="process-step">
-              <div className="process-number">4</div>
-              <h3>Ongoing Care</h3>
-              <p>Regular treatment sessions with continuous monitoring, adjustment, and support.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="faq" className="faq-section">
-        <div className="faq-container">
-          <h2 className="section-title">Frequently Asked Questions</h2>
-          {faqs.map((faq, index) => (
-            <div className="faq-item" key={faq.question}>
-              <button
-                className="faq-question"
-                onClick={() => toggleFaq(index)}
-                aria-expanded={openFaq === index}
-                aria-controls={`faq-answer-${index}`}
-              >
-                {faq.question}
-                <span aria-hidden="true">{openFaq === index ? '−' : '+'}</span>
-              </button>
-              <div
-                className={`faq-answer ${openFaq === index ? 'active' : ''}`}
-                id={`faq-answer-${index}`}
-                role="region"
-              >
-                {faq.answer}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section id="contact" className="contact-section">
-        <div className="contact-container">
-          <div className="contact-info">
-            <h2>Get in Touch</h2>
-            <p>Ready to start your recovery journey? Contact me today to discuss your needs and arrange a free consultation. I'm here to answer any questions you may have.</p>
-            <div className="contact-details">
-              <div className="contact-item">
-                <span>📞</span> <a href="tel:07466012234">07466 012234</a>
-              </div>
-              <div className="contact-item">
-                <span>📧</span> <a href={`mailto:${site.email}`}>{site.email}</a>
-              </div>
-            </div>
-            <div className="coverage-area">
-              <h3>📍 Areas We Cover</h3>
-              <p>Home visits across {site.coverage.label}. There is no clinic to travel to &mdash; every assessment and treatment session takes place in your own home.</p>
-              <p>{site.coverage.towns.map(townLabel).join(' · ')}</p>
-              <p>Just outside these areas? Send us your postcode and we&apos;ll confirm whether we can reach you.</p>
-            </div>
-          </div>
-          <form className="contact-form" onSubmit={handleFormSubmit}>
-            {formError && (
-              <div style={{ 
-                padding: '1rem', 
-                marginBottom: '1.5rem', 
-                background: '#fee2e2', 
-                color: '#991b1b', 
-                borderRadius: '12px',
-                border: '2px solid #ef4444',
-                textAlign: 'center',
-                fontWeight: 600
-              }}>
-                ⚠ {formError}
-              </div>
-            )}
-            {formSubmitted && (
-              <div style={{ 
-                padding: '1rem', 
-                marginBottom: '1.5rem', 
-                background: '#d1fae5', 
-                color: '#065f46', 
-                borderRadius: '12px',
-                border: '2px solid #10b981',
-                textAlign: 'center',
-                fontWeight: 600
-              }}>
-                ✓ Thank you! We'll get back to you within 24 hours.
-              </div>
-            )}
-            <input
-              type="text"
-              name="name"
-              placeholder="Your Name *"
-              aria-label="Your name"
-              autoComplete="name"
-              maxLength={LIMITS.name}
-              value={formData.name}
-              onChange={handleInputChange}
-              required
-            />
-            <input
-              type="tel"
-              name="phone"
-              placeholder="Phone Number *"
-              aria-label="Phone number"
-              autoComplete="tel"
-              maxLength={LIMITS.phone}
-              value={formData.phone}
-              onChange={handleInputChange}
-              required
-            />
-            <input
-              type="email"
-              name="email"
-              placeholder="Email Address"
-              aria-label="Email address"
-              autoComplete="email"
-              maxLength={LIMITS.email}
-              value={formData.email}
-              onChange={handleInputChange}
-            />
-            <textarea
-              name="message"
-              placeholder="Tell us about your condition and how we can help... *"
-              aria-label="Tell us about your condition"
-              maxLength={LIMITS.message}
-              value={formData.message}
-              onChange={handleInputChange}
-              required
-            ></textarea>
-            {/* Honeypot: positioned off-screen rather than display:none, which some bots detect */}
-            <div style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }} aria-hidden="true">
-              <input
-                type="text"
-                name="company"
-                tabIndex={-1}
-                autoComplete="off"
-                value={formData.company}
-                onChange={handleInputChange}
-              />
-            </div>
-            <button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Sending...' : 'Send Message'}
-            </button>
-            <p style={{ marginTop: '1rem', fontSize: '0.85rem', color: '#64748b', textAlign: 'center' }}>We typically respond within 24 hours</p>
-          </form>
-        </div>
-      </section>
-
-      <footer>
-        <p><strong>Ismail Aram BSc (Hons) MCSP – Chartered Physiotherapist</strong></p>
-        <p style={{ marginTop: '0.5rem' }}>HCPC Registered | Professional Indemnity Insurance | Enhanced DBS</p>
-        <p style={{ marginTop: '1rem' }}>© {year} Ismail Aram Physiotherapy. All rights reserved.</p>
       </footer>
 
-      {modalOpen && activeService && (
-        <div className="modal active" onClick={closeModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>{activeService.title}</h3>
-              <button className="close-btn" onClick={closeModal}>×</button>
+      {activeService && (
+        <div className="modal-backdrop" onClick={() => setActiveService(null)}>
+          <div
+            className="modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-head">
+              <div>
+                <span className="modal-head-icon">
+                  <Icon name={activeService.icon} size={22} />
+                </span>
+                <h2 id="modal-title">{activeService.title}</h2>
+              </div>
+              <button
+                ref={modalCloseRef}
+                className="close-btn"
+                onClick={() => setActiveService(null)}
+                aria-label="Close"
+              >
+                &#10005;
+              </button>
             </div>
-            <div>
-              <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>{activeService.description}</p>
-              
-              <h4 style={{ color: '#1e293b', fontSize: '1.2rem', margin: '1.5rem 0 1rem', fontWeight: 600 }}>Conditions Treated:</h4>
-              <ul>
-                {activeService.conditions.map((condition, index) => (
-                  <li key={index}>{condition}</li>
-                ))}
-              </ul>
-              
-              <h4 style={{ color: '#1e293b', fontSize: '1.2rem', margin: '1.5rem 0 1rem', fontWeight: 600 }}>Treatment Approaches:</h4>
-              <ul>
-                {activeService.treatments.map((treatment, index) => (
-                  <li key={index}>{treatment}</li>
-                ))}
-              </ul>
+
+            <p>{activeService.description}</p>
+
+            <h3>Conditions Treated</h3>
+            <ul>
+              {activeService.conditions.map((item) => (
+                <li key={item}>
+                  <Icon name="check" size={15} strokeWidth={2} />
+                  {item}
+                </li>
+              ))}
+            </ul>
+
+            <h3>Treatment Approaches</h3>
+            <ul>
+              {activeService.treatments.map((item) => (
+                <li key={item}>
+                  <Icon name="check" size={15} strokeWidth={2} />
+                  {item}
+                </li>
+              ))}
+            </ul>
+
+            <div className="modal-foot">
+              <a href="#contact" className="btn btn--primary" onClick={() => setActiveService(null)}>
+                Book a consultation
+                <Icon name="arrow" size={16} />
+              </a>
             </div>
           </div>
         </div>

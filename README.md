@@ -62,6 +62,30 @@ Two things fan out from `data/site.ts` automatically:
   block, the FAQ answer, and every `areaServed` node in the structured data. Set `note` on
   a town (e.g. `'southern boundary'`) and it renders in brackets everywhere.
 
+## Brand mark
+
+The logo is a gable roof and walls (care delivered at home) enclosing an ascending arc that
+ends in a joint dot (range of motion restored). It is drawn on a 32px grid in the same
+stroke language as the icon set.
+
+| File | Use |
+| --- | --- |
+| [components/Logo.tsx](components/Logo.tsx) | `<LogoMark />` — inherits `currentColor`, so it renders white inside the gradient tile in the nav and footer, or blue when used bare |
+| [public/favicon.svg](public/favicon.svg) | Modern browsers. Also serves as the Safari pinned-tab mask |
+| `public/favicon.ico` | 16/32/48px rasters in one file, for older browsers |
+| `public/apple-touch-icon.png` | 180px, full-bleed square — iOS applies its own corner mask, so this one is deliberately not rounded |
+
+All four are declared in [pages/_document.tsx](pages/_document.tsx).
+
+### Regenerating the rasters
+
+The PNGs were produced from `favicon.svg` using the browser's own renderer rather than an
+image library, so there is no build-time dependency to maintain. If the mark changes, edit
+`components/Logo.tsx` and `public/favicon.svg` together, then re-render: draw the SVG onto a
+`<canvas>` at 16/32/48/180px, export with `toDataURL('image/png')`, and pack the three small
+sizes into `favicon.ico` (a 6-byte `ICONDIR`, one 16-byte entry per image, then the PNG bytes
+appended — every browser still in use accepts PNG payloads inside ICO).
+
 ## Deployment
 
 The site is automatically deployed to Vercel when you push to the main branch.

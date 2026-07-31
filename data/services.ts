@@ -1,5 +1,11 @@
+import type { IconName } from '@/components/Icon';
+
 export interface ServiceData {
+  /** Icon mark shown on the service card. */
+  icon: IconName;
   title: string;
+  /** Short card copy. `description` is the longer version used in the modal and schema. */
+  blurb: string;
   description: string;
   conditions: string[];
   treatments: string[];
@@ -7,7 +13,9 @@ export interface ServiceData {
 
 export const servicesData: Record<string, ServiceData> = {
   neurological: {
+    icon: "neuro",
     title: "Neurological Physiotherapy",
+    blurb: "Specialist rehabilitation for neurological conditions including stroke, Parkinson's, MS, and brain injury. Focus on maximizing independence and quality of life.",
     description: "Specialist neurological rehabilitation focusing on maximizing function, independence, and quality of life for patients with neurological conditions.",
     conditions: [
       "Stroke (CVA) - acute and chronic recovery",
@@ -29,7 +37,9 @@ export const servicesData: Record<string, ServiceData> = {
     ]
   },
   geriatric: {
+    icon: "elder",
     title: "Geriatric Rehabilitation",
+    blurb: "Comprehensive care for older adults addressing frailty, osteoarthritis, reduced mobility, and post-hospital recovery. Evidence-based interventions to maintain independence.",
     description: "Comprehensive physiotherapy for older adults, promoting healthy aging, maintaining independence, and improving quality of life.",
     conditions: [
       "Frailty Syndrome - strength and endurance building",
@@ -50,7 +60,9 @@ export const servicesData: Record<string, ServiceData> = {
     ]
   },
   postOp: {
+    icon: "surgical",
     title: "Post-operative Rehabilitation",
+    blurb: "Structured recovery programmes following joint replacements, spinal surgery, and orthopaedic procedures. Optimizing healing and restoring function safely.",
     description: "Structured recovery programmes designed to optimize healing, restore function, and return you to your desired activities safely following surgery.",
     conditions: [
       "Hip Replacement - total and partial",
@@ -72,7 +84,9 @@ export const servicesData: Record<string, ServiceData> = {
     ]
   },
   balance: {
+    icon: "balance",
     title: "Balance & Falls Prevention",
+    blurb: "Targeted assessment and treatment for balance disorders, vestibular conditions, and recurrent falls. Building confidence and reducing fall risk.",
     description: "Specialist assessment and treatment for balance disorders, reducing fall risk and building confidence in mobility.",
     conditions: [
       "Recurrent Falls - multi-factorial assessment",
@@ -94,7 +108,9 @@ export const servicesData: Record<string, ServiceData> = {
     ]
   },
   msk: {
+    icon: "joint",
     title: "Musculoskeletal Physiotherapy",
+    blurb: "Treatment for back pain, neck pain, arthritis, and sports injuries. Manual therapy, exercise prescription, and pain management strategies.",
     description: "Evidence-based treatment for acute and chronic musculoskeletal pain and dysfunction, helping you return to normal activities.",
     conditions: [
       "Lower Back Pain - acute and chronic",
@@ -116,7 +132,9 @@ export const servicesData: Record<string, ServiceData> = {
     ]
   },
   respiratory: {
+    icon: "lungs",
     title: "Respiratory Physiotherapy",
+    blurb: "Breathing exercises, airway clearance techniques, and rehabilitation for COPD, post-COVID recovery, and chronic respiratory conditions.",
     description: "Specialist breathing and airway clearance techniques to improve respiratory function and quality of life.",
     conditions: [
       "COPD - chronic obstructive pulmonary disease",

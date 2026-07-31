@@ -89,7 +89,7 @@ export default async function handler(
   try {
     // Send email to you
     const { error } = await getResend().emails.send({
-      from: `Home Physio Contact <${FROM}>`,
+      from: `${site.brandName} Contact <${FROM}>`,
       to: [TO],
       replyTo: email || undefined,
       subject: `New Consultation Request from ${name}`,
@@ -106,7 +106,7 @@ export default async function handler(
             <p style="color: #475569; line-height: 1.6;">${safe.message}</p>
           </div>
           <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0; color: #64748b; font-size: 12px;">
-            <p>This message was sent from the Home Physio website contact form.</p>
+            <p>This message was sent from the ${escapeHtml(site.brandName)} website contact form.</p>
             ${safe.email ? `
               <div style="background: #eff6ff; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #2563eb;">
                 <p style="margin: 0; color: #1e40af; font-weight: 600;">💡 To reply to ${safe.name}:</p>
@@ -133,7 +133,7 @@ export default async function handler(
     if (email) {
       try {
         await getResend().emails.send({
-          from: `Home Physio <${FROM}>`,
+          from: `${site.brandName} <${FROM}>`,
           to: [email],
           replyTo: TO,
           subject: 'Thank you for your consultation request',
@@ -141,7 +141,7 @@ export default async function handler(
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <h2 style="color: #2563eb;">Thank you for contacting us!</h2>
               <p>Dear ${safe.name},</p>
-              <p>Thank you for reaching out to Home Physio. We have received your consultation request and will get back to you within ${site.responseTime}.</p>
+              <p>Thank you for reaching out to ${escapeHtml(site.brandName)}. We have received your consultation request and will get back to you within ${site.responseTime}.</p>
               <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
                 <p><strong>Your Message:</strong></p>
                 <p style="color: #475569; line-height: 1.6;">${safe.message}</p>

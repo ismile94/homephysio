@@ -90,7 +90,7 @@ export default function Seo() {
     '@type': ['MedicalBusiness', 'Physiotherapy'],
     '@id': `${site.url}/#practice`,
     name: site.name,
-    alternateName: 'Home Physio',
+    alternateName: site.brandName,
     url: site.url,
     telephone: site.phoneE164,
     email: site.email,

@@ -12,6 +12,8 @@ export interface CoverageTown {
  */
 export const site = {
   name: 'Ismail Aram Physiotherapy',
+  /** Trading name shown in the nav, footer and outgoing email. */
+  brandName: 'PhysioVisit',
   practitioner: 'Ismail Aram',
   postNominals: 'BSc (Hons) MCSP',
   role: 'Chartered Physiotherapist',
@@ -23,6 +25,15 @@ export const site = {
   phoneHref: 'tel:+447466012234',
   phoneE164: '+447466012234',
   email: 'contact@physiovisit.co.uk',
+
+  /**
+   * Which brand mark the nav and footer render.
+   *   'mark' - the drawn SVG mark in components/Logo.tsx (gradient tile)
+   *   'a'    - public/logo-a.png (teal & copper figure)
+   *   'b'    - public/logo-b.png (blue & green figure)
+   * Change this one value to swap the logo everywhere.
+   */
+  brandLogo: 'a' as 'mark' | 'a' | 'b',
 
   fees: {
     assessment: '£100',

@@ -17,6 +17,9 @@ export const site = {
   practitioner: 'Ismail Aram',
   postNominals: 'BSc (Hons) MCSP',
   role: 'Chartered Physiotherapist',
+  hcpcNumber: 'PH134486',
+  hcpcRegisterUrl:
+    'https://www.hcpc-uk.org/check-the-register/professional-registration-detail/?query=PH134486&profession=PH',
 
   url: process.env.NEXT_PUBLIC_SITE_URL || 'https://homephysio-pi.vercel.app',
   ogImage: '/evhastasi.jpg',
@@ -24,6 +27,9 @@ export const site = {
   phone: '07466 012234',
   phoneHref: 'tel:+447466012234',
   phoneE164: '+447466012234',
+  smsHref: 'sms:+447466012234',
+  whatsAppHref:
+    'https://wa.me/447466012234?text=Hello,%20I%20came%20across%20your%20PhysioVisit%20website%20and%20would%20like%20to%20enquire%20about%20your%20home%20physiotherapy%20services.%0A%0AI\'d%20like%20to%20discuss%20my%20needs%20and%20find%20out%20more%20about%20arranging%20an%20initial%20consultation.%0A%0AThank%20you.',
   email: 'contact@physiovisit.co.uk',
 
   /**

@@ -28,7 +28,7 @@ export const faqs: Faq[] = [
   },
   {
     question: 'What are your fees?',
-    answer: `Initial assessment: ${site.fees.assessment} | Follow-up session (45-60 mins): ${site.fees.session} | We offer package discounts for block bookings. Payment can be made by cash, bank transfer, or card. Some private health insurance policies cover home physiotherapy - please check with your provider.`,
+    answer: `Initial assessment: ${site.fees.assessment} | Follow-up session (45-60 mins): ${site.fees.session} | We offer package discounts for block bookings. Payment can be made directly by cash, bank transfer, or card.`,
   },
   {
     question: 'Which areas do you cover?',

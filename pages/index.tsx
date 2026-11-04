@@ -4,6 +4,7 @@ import Icon from '@/components/Icon';
 import { BrandLogo } from '@/components/Logo';
 import Reveal from '@/components/Reveal';
 import Counter from '@/components/Counter';
+import PhoneContact from '@/components/PhoneContact';
 import { servicesData, type ServiceData } from '@/data/services';
 import { conditionGroups, approachCards, processSteps, trustPoints } from '@/data/conditions';
 import { faqs } from '@/data/faqs';
@@ -206,15 +207,26 @@ export default function Home() {
                 and goals.
               </p>
 
+              <p className="hero-registration rise" style={{ animationDelay: '0.34s' }}>
+                <Icon name="shield" size={16} />
+                <span>HCPC Registered &middot; No. {site.hcpcNumber}</span>
+                <a
+                  href={site.hcpcRegisterUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Verify HCPC registration ${site.hcpcNumber} (opens in a new tab)`}
+                >
+                  Check the register
+                  <Icon name="arrow" size={13} />
+                </a>
+              </p>
+
               <div className="hero-actions rise" style={{ animationDelay: '0.4s' }}>
                 <a href="#contact" className="btn btn--primary">
                   <Icon name="calendar" size={18} />
                   Book Your Consultation
                 </a>
-                <a href={site.phoneHref} className="btn btn--ghost">
-                  <Icon name="phone" size={17} />
-                  {site.phone}
-                </a>
+                <PhoneContact triggerClassName="btn btn--ghost" placement="up" align="right" />
               </div>
             </div>
 
@@ -484,10 +496,7 @@ export default function Home() {
                 </p>
 
                 <div className="contact-lines">
-                  <a href={site.phoneHref} className="contact-item">
-                    <Icon name="phone" size={19} />
-                    {site.phone}
-                  </a>
+                  <PhoneContact triggerClassName="contact-item" />
                   <a href={`mailto:${site.email}`} className="contact-item">
                     <Icon name="mail" size={19} />
                     {site.email}
@@ -647,7 +656,7 @@ export default function Home() {
               <h4>Contact</h4>
               <ul>
                 <li>
-                  <a href={site.phoneHref}>{site.phone}</a>
+                  <PhoneContact placement="up" />
                 </li>
                 <li>
                   <a href={`mailto:${site.email}`}>{site.email}</a>

@@ -20,8 +20,15 @@ export const site = {
   hcpcRegisterUrl:
     'https://www.hcpc-uk.org/check-the-register/professional-registration-detail/?query=PH134486&profession=PH',
 
-  url: process.env.NEXT_PUBLIC_SITE_URL || 'https://homephysio-pi.vercel.app',
-  ogImage: '/evhastasi.jpg',
+  /**
+   * Canonical production origin (the bare domain 308-redirects here). Not read
+   * from an env var: a stale value once sent every canonical tag, the sitemap
+   * and robots.txt to the vercel.app host.
+   */
+  url: 'https://www.physiovisit.co.uk',
+  domainLabel: 'physiovisit.co.uk',
+  ogImage: '/og-image.jpg',
+  heroImage: '/evhastasi.jpg',
 
   phone: '07466 012234',
   phoneHref: 'tel:+447466012234',

@@ -1,23 +1,28 @@
 import type { GetServerSideProps } from 'next';
 import { site } from '@/data/site';
+import { serviceList } from '@/data/services';
 
-/**
- * Generated rather than static so the hostname always tracks
- * NEXT_PUBLIC_SITE_URL — a stale sitemap pointing at the old domain after a
- * move is a silent indexing problem. Add paths here as pages are added.
- */
-const paths = ['/'];
+/** Generated so new service pages appear automatically. */
+const pages: { path: string; priority: string; changefreq: string }[] = [
+  { path: '/', priority: '1.0', changefreq: 'monthly' },
+  ...serviceList.map((service) => ({
+    path: `/services/${service.slug}`,
+    priority: '0.8',
+    changefreq: 'monthly',
+  })),
+  { path: '/privacy', priority: '0.2', changefreq: 'yearly' },
+];
 
 function buildSitemap(): string {
   const lastmod = new Date().toISOString().slice(0, 10);
 
-  const urls = paths
+  const urls = pages
     .map(
-      (path) => `  <url>
-    <loc>${site.url}${path === '/' ? '/' : path}</loc>
+      (page) => `  <url>
+    <loc>${site.url}${page.path}</loc>
     <lastmod>${lastmod}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>${path === '/' ? '1.0' : '0.8'}</priority>
+    <changefreq>${page.changefreq}</changefreq>
+    <priority>${page.priority}</priority>
   </url>`
     )
     .join('\n');

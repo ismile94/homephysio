@@ -1,0 +1,35 @@
+<!doctype html>
+<!--
+  Logo assets. logo.html?w=400&h=400&layout=square  or  ?w=1200&h=300&layout=landscape
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&display=block" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  #ad {
+    position: absolute; left: 0; top: 0; display: flex; align-items: center; justify-content: center;
+    gap: 34px; background: #fff; font-family: Inter, Arial, sans-serif; color: #0b2a5b;
+  }
+  b { display: block; font-size: 118px; font-weight: 700; letter-spacing: -.045em; line-height: 1; }
+  small {
+    display: block; margin-top: 18px; font-size: 30px; font-weight: 600; letter-spacing: .24em;
+    text-transform: uppercase; color: #2563eb;
+  }
+</style>
+</head>
+<body>
+<div id="ad"></div>
+<script>
+  const q = new URLSearchParams(location.search);
+  const W = +q.get('w'), H = +q.get('h');
+  const ad = document.getElementById('ad');
+  ad.style.width = W + 'px';
+  ad.style.height = H + 'px';
+  ad.innerHTML = q.get('layout') === 'landscape'
+    ? `<img src="../photos/logo.png" style="width:${H * 0.8}px;height:${H * 0.8}px"><span><b>PhysioVisit</b><small>Home Physiotherapy</small></span>`
+    : `<img src="../photos/logo.png" style="width:${W * 0.8}px;height:${H * 0.8}px">`;
+</script>
+</body>
+</html>

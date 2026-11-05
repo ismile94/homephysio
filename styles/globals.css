@@ -36,7 +36,7 @@
   --line-strong: #cbd5e1;
 
   /* Type */
-  --display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --display: var(--sans);
   --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
     sans-serif;
 
@@ -1778,7 +1778,7 @@ a.contact-item:hover {
 
 .footer-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 0.95fr);
   gap: clamp(2rem, 4vw, 3.5rem);
   padding-bottom: 2.5rem;
   border-bottom: 1px solid var(--line);
@@ -2956,5 +2956,284 @@ a.contact-item:hover {
 
   .physio-creds li {
     padding-inline: 0.3rem;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Service landing pages
+   -------------------------------------------------------------------------- */
+
+.page-hero {
+  padding-block: clamp(2rem, 5vw, 3.75rem) clamp(2.25rem, 5vw, 3.5rem);
+  background:
+    radial-gradient(ellipse 50% 80% at 95% 0%, rgba(191, 219, 254, 0.55), transparent 70%),
+    linear-gradient(180deg, #f2f7fe 0%, var(--white) 100%);
+  border-bottom: 1px solid var(--line);
+}
+
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 1.25rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.breadcrumb a {
+  color: var(--blue-700);
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.page-hero h1 {
+  max-width: 22ch;
+  color: var(--ink);
+  font-size: clamp(1.9rem, 4vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.12;
+}
+
+.page-hero-lede {
+  max-width: 60ch;
+  margin-top: 1rem;
+  color: var(--body);
+  font-size: var(--fs-lede);
+}
+
+.page-hero-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 1.1rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.page-hero-meta svg {
+  flex: none;
+  color: #16a34a;
+}
+
+.service-detail {
+  display: grid;
+  gap: clamp(1.5rem, 3vw, 2.25rem);
+}
+
+.service-detail-intro {
+  max-width: 72ch;
+}
+
+.service-detail-intro h2 {
+  color: var(--ink);
+  font-size: clamp(1.35rem, 2.6vw, 1.85rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+
+.service-detail-intro p {
+  margin-top: 0.75rem;
+  color: var(--body);
+}
+
+.service-detail-lists {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.detail-card {
+  padding: clamp(1.2rem, 3vw, 1.75rem);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--white);
+  box-shadow: var(--card-shadow);
+}
+
+.detail-card h3 {
+  margin-bottom: 0.6rem;
+  color: var(--blue-700);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.detail-card li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.3rem 0;
+  color: var(--body);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.detail-card li svg {
+  flex: none;
+  margin-top: 0.25rem;
+  color: var(--blue-600);
+}
+
+.faq-details summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.faq-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-details[open] .faq-sign {
+  transform: rotate(180deg);
+  color: var(--blue-700);
+}
+
+.faq-details-answer {
+  padding: 0 2rem 1.25rem 0;
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  line-height: 1.75;
+}
+
+a.service-card {
+  text-decoration: none;
+}
+
+.modal-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--blue-700);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.modal-more:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 720px) {
+  .service-detail-lists {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Privacy page
+   -------------------------------------------------------------------------- */
+
+.legal-body {
+  max-width: 760px;
+}
+
+.legal h1 {
+  color: var(--ink);
+  font-size: clamp(1.9rem, 4vw, 2.6rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.legal-updated {
+  margin-top: 0.4rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.legal h2 {
+  margin: 2rem 0 0.6rem;
+  color: var(--ink);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.legal p,
+.legal li {
+  color: var(--body);
+  font-size: 0.95rem;
+}
+
+.legal ul {
+  display: grid;
+  gap: 0.5rem;
+  padding-left: 1.1rem;
+  list-style: disc;
+}
+
+.legal a {
+  color: var(--blue-700);
+  text-decoration: underline;
+}
+
+.footer-legal a {
+  text-decoration: underline;
+}
+
+/* --------------------------------------------------------------------------
+   Cookie banner
+   -------------------------------------------------------------------------- */
+
+.cookie-banner {
+  position: fixed;
+  left: 50%;
+  bottom: 1rem;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: min(720px, calc(100% - 1.5rem));
+  padding: 0.9rem 1rem 0.9rem 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--white);
+  box-shadow: 0 18px 44px rgba(11, 42, 91, 0.18);
+  transform: translateX(-50%);
+}
+
+.cookie-banner p {
+  flex: 1;
+  color: var(--body);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.cookie-banner a {
+  color: var(--blue-700);
+  text-decoration: underline;
+}
+
+.cookie-actions {
+  display: flex;
+  flex: none;
+  gap: 0.5rem;
+}
+
+.cookie-btn {
+  padding: 0.55rem 1rem;
+  border-radius: 100px;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.cookie-btn--accept {
+  background: var(--ink);
+  color: var(--white);
+}
+
+@media (max-width: 560px) {
+  .cookie-banner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cookie-actions > * {
+    flex: 1;
   }
 }

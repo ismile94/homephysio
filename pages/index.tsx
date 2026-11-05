@@ -1,23 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
-import Seo from '@/components/Seo';
+import Seo, { HOME_DESCRIPTION, HOME_TITLE, faqNode, webPageNode } from '@/components/Seo';
 import Icon, { type IconName } from '@/components/Icon';
-import { BrandWordmark } from '@/components/Logo';
 import Reveal from '@/components/Reveal';
+import SiteHeader from '@/components/SiteHeader';
+import SiteFooter from '@/components/SiteFooter';
+import PhysioCard from '@/components/PhysioCard';
 import PhoneContact from '@/components/PhoneContact';
 import { servicesData, type ServiceData } from '@/data/services';
 import { approachCards, processSteps } from '@/data/conditions';
 import { faqs } from '@/data/faqs';
 import { site, townLabel } from '@/data/site';
 import { LIMITS, isValidEmail } from '@/lib/validate';
-
-const navLinks = [
-  { href: '#services', label: 'Services' },
-  { href: '#about', label: 'About' },
-  { href: '#approach', label: 'Our Approach' },
-  { href: '#process', label: 'Process' },
-  { href: '#faq', label: 'FAQ' },
-  { href: '#contact', label: 'Contact' },
-];
+import { trackConversion } from '@/lib/gtag';
 
 const featurePoints: { icon: IconName; title: string; body: string }[] = [
   { icon: 'home', title: 'Home visits', body: 'Manchester, Stockport & Cheshire' },
@@ -25,13 +19,11 @@ const featurePoints: { icon: IconName; title: string; body: string }[] = [
   { icon: 'clock', title: '60-min assessment', body: 'Unhurried first visit' },
   { icon: 'user', title: '1-to-1 care', body: 'Same physio every visit' },
 ];
+const homeNodes = [webPageNode('/', HOME_TITLE, HOME_DESCRIPTION), faqNode('/', faqs)];
+
 export default function Home() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [activeService, setActiveService] = useState<ServiceData | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
-  const [year, setYear] = useState(0);
-  const [scrolled, setScrolled] = useState(false);
-  const [progress, setProgress] = useState(0);
   const [processVisible, setProcessVisible] = useState(false);
 
   // `company` is a honeypot - hidden from people, filled in by form bots.
@@ -42,21 +34,6 @@ export default function Home() {
   const formMountedAt = useRef(Date.now());
   const processRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setYear(new Date().getFullYear());
-
-    const onScroll = () => {
-      const scrollTop = window.scrollY;
-      const height = document.documentElement.scrollHeight - window.innerHeight;
-      setScrolled(scrollTop > 24);
-      setProgress(height > 0 ? Math.min(scrollTop / height, 1) : 0);
-    };
-
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
 
   // Draws the process timeline rail once the section is in view.
   useEffect(() => {
@@ -130,6 +107,7 @@ export default function Home() {
       }
 
       setFormSubmitted(true);
+      trackConversion('form');
       setFormData({ name: '', phone: '', email: '', message: '', company: '' });
 
       // Reset success message after 5 seconds
@@ -149,44 +127,20 @@ export default function Home() {
 
   return (
     <>
-      <Seo />
+      <Seo nodes={homeNodes} preloadImage={site.heroImage} />
 
-      <header className="nav" data-scrolled={scrolled}>
-        <div className="nav-inner">
-          <a href="#home" className="logo" aria-label={`${site.brandName} - back to top`}>
-            <BrandWordmark />
-          </a>
-
-          <button
-            className="menu-toggle"
-            aria-expanded={menuOpen}
-            aria-controls="nav-links"
-            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-            onClick={() => setMenuOpen(!menuOpen)}
-          >
-            <span />
-          </button>
-
-          <nav id="nav-links" className="nav-links" data-open={menuOpen}>
-            {navLinks.map((link) => (
-              <a key={link.href} href={link.href} onClick={() => setMenuOpen(false)}>
-                {link.label}
-              </a>
-            ))}
-          </nav>
-        </div>
-        <div className="nav-progress" style={{ transform: `scaleX(${progress})`, width: '100%' }} />
-      </header>
+      <SiteHeader onHome />
 
       <main>
         <section id="home" className="hero">
           <div className="hero-main">
             <div className="hero-bg">
               <img
-                src="/evhastasi.jpg"
+                src={site.heroImage}
                 alt="Physiotherapist supporting a patient walking with crutches at home"
                 width={1024}
                 height={625}
+                fetchPriority="high"
               />
             </div>
 
@@ -271,73 +225,7 @@ export default function Home() {
         <section id="about" className="section section--surface section--tight">
           <div className="shell">
             <Reveal>
-              <article className="physio-card">
-                <div className="physio-body">
-                  <h2>Meet your physiotherapist</h2>
-                  <p>
-                    I&apos;m <strong>{site.practitioner}</strong>, a {site.role} (
-                    {site.postNominals}) treating adults of all ages and conditions in their own
-                    homes.
-                  </p>
-                  <p>
-                    My goal is evidence-based, personalised care &mdash; with unhurried
-                    appointments and the same physio at every visit.
-                  </p>
-                </div>
-
-                <ul className="physio-points">
-                  <li>
-                    <strong>60 min</strong>
-                    <span>First assessment</span>
-                  </li>
-                  <li>
-                    <strong>45&ndash;60 min</strong>
-                    <span>Every session</span>
-                  </li>
-                  <li>
-                    <strong>1-to-1</strong>
-                    <span>Same physio</span>
-                  </li>
-                </ul>
-
-                <a href="#contact" className="btn btn--navy physio-cta">
-                  Arrange a home visit
-                  <Icon name="arrow" size={15} strokeWidth={2} />
-                </a>
-
-                <ul className="physio-creds" aria-label="Registration and insurance">
-                  <li>
-                    <a
-                      href={site.hcpcRegisterUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`HCPC registered, number ${site.hcpcNumber} - verify on the register (opens in a new tab)`}
-                    >
-                      <span className="cred-mark cred-mark--hcpc">
-                        hcpc
-                        <small>registered</small>
-                      </span>
-                      <span className="cred-note">No. {site.hcpcNumber}</span>
-                    </a>
-                  </li>
-                  <li>
-                    <img
-                      className="cred-logo"
-                      src="/csp-logo.svg"
-                      alt="The Chartered Society of Physiotherapy"
-                      width={146}
-                      height={74}
-                    />
-                    <span className="cred-note">Member (MCSP)</span>
-                  </li>
-                  <li>
-                    <span className="cred-mark cred-mark--ins">
-                      <Icon name="shield" size={22} strokeWidth={1.8} />
-                    </span>
-                    <span className="cred-note">Fully insured &amp; Enhanced DBS checked</span>
-                  </li>
-                </ul>
-              </article>
+              <PhysioCard />
             </Reveal>
           </div>
         </section>
@@ -630,42 +518,7 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="footer">
-        <div className="shell">
-          <div className="footer-grid">
-            <div className="footer-brand">
-              <a href="#home" className="logo">
-                <BrandWordmark />
-              </a>
-              <p className="footer-bio">
-                {site.practitioner} {site.postNominals} &ndash; {site.role}. Specialist home
-                physiotherapy across {site.coverage.label}.
-              </p>
-            </div>
-
-            <div>
-              <h4>Sections</h4>
-              <ul className="footer-links">
-                {navLinks.map((link) => (
-                  <li key={link.href}>
-                    <a href={link.href}>{link.label}</a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-          </div>
-
-          <div className="footer-legal">
-            <span>
-              &copy; {year} {site.name}. All rights reserved.
-            </span>
-            <span>
-              HCPC Registered | Professional Liability Insurance (PLI) | Enhanced DBS
-            </span>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter onHome />
 
       {activeService && (
         <div className="modal-backdrop" onClick={() => setActiveService(null)}>
@@ -679,7 +532,13 @@ export default function Home() {
             onClick={(e) => e.stopPropagation()}
           >
             <h2 id="modal-title">{activeService.title}</h2>
-            <p>{activeService.description}</p>
+            <p>
+              {activeService.description}{' '}
+              <a className="modal-more" href={`/services/${activeService.slug}`}>
+                Full details
+                <Icon name="arrow" size={13} strokeWidth={2} />
+              </a>
+            </p>
 
             <h3>Conditions treated</h3>
             <ul>

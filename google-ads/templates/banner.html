@@ -1,0 +1,180 @@
+<!doctype html>
+<!--
+  One template for every uploaded display banner. Size and photo come from the
+  query string, e.g. banner.html?w=300&h=250&src=hallway.jpg&pos=center
+  The layout (thin / mlarge / wide / rect / tall / og) is chosen from the size.
+  Rendered to PNG/JPG by ../render.ps1.
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&display=block" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #fff; }
+  #ad {
+    position: absolute; left: 0; top: 0; overflow: hidden;
+    font-family: Inter, Arial, sans-serif; color: #0b2a5b; background: #fff;
+  }
+  /* Google requires a visible border on light-background image ads. */
+  #ad::after {
+    content: ''; position: absolute; inset: 0; border: 1px solid #c8d8ec; pointer-events: none;
+  }
+  .photo { position: absolute; background-size: cover; background-repeat: no-repeat; }
+  .brand { display: flex; align-items: center; gap: .35em; }
+  .brand img { width: 2.1em; height: 2.1em; flex: none; }
+  .brand b { display: block; font-size: 1.2em; font-weight: 700; letter-spacing: -.04em; line-height: 1; }
+  .brand small {
+    display: block; margin-top: .3em; font-size: .5em; font-weight: 600; letter-spacing: .2em;
+    text-transform: uppercase; color: #2563eb;
+  }
+  .h { font-weight: 800; letter-spacing: -.035em; line-height: 1.1; }
+  .s { color: #3b4c66; line-height: 1.35; font-weight: 500; }
+  .cta {
+    display: inline-flex; align-items: center; justify-content: center; gap: .4em;
+    padding: .7em 1.1em; border-radius: 999px; white-space: nowrap; font-weight: 700;
+    color: #fff; background: linear-gradient(135deg, #2bb24c, #1f9a3e);
+    box-shadow: 0 .3em .9em rgba(31, 154, 62, .3);
+  }
+  .cta svg { width: 1em; height: 1em; }
+  .url { color: #2563eb; font-weight: 700; white-space: nowrap; }
+  .pill {
+    display: inline-flex; align-items: center; gap: .35em; padding: .35em .7em; border-radius: 999px;
+    background: #eef5fd; color: #17396d; font-weight: 600; white-space: nowrap;
+  }
+  .fade-l::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(90deg, #fff 0%, rgba(255, 255, 255, .7) 18%, rgba(255, 255, 255, 0) 45%);
+  }
+</style>
+</head>
+<body>
+<div id="ad"></div>
+<script>
+  const q = new URLSearchParams(location.search);
+  const W = +q.get('w'), H = +q.get('h');
+  const src = '../photos/' + (q.get('src') || 'living-room.jpg');
+  const pos = q.get('pos') || 'center';
+  const ad = document.getElementById('ad');
+  ad.style.width = W + 'px';
+  ad.style.height = H + 'px';
+
+  const r = W / H;
+  const layout = q.get('layout') ||
+    (H <= 100 && W < 400 && H >= 90 ? 'mlarge' : H <= 100 ? 'thin' : r >= 2.5 ? 'wide' : r >= 0.75 ? 'rect' : 'tall');
+
+  const HEAD = 'Physiotherapy in your own home';
+  const SUB = 'Chartered &amp; HCPC registered &middot; Manchester, Stockport &amp; Cheshire';
+  const CTA = 'Book a home visit';
+  const URL = 'physiovisit.co.uk';
+  const arrow = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12h14M13 6.5l5.5 5.5-5.5 5.5"/></svg>';
+  const check = '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="#16a34a" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.6 9.3 17.4 19.5 7.2"/></svg>';
+  const brand = (tag) =>
+    `<div class="brand"><img src="../photos/logo.png" alt=""><span><b>PhysioVisit</b>${tag ? '<small>Home Physiotherapy</small>' : ''}</span></div>`;
+  const photo = (style, cls = '') =>
+    `<div class="photo ${cls}" style="${style};background-image:url(${src});background-position:${pos}"></div>`;
+
+  let html = '';
+
+  if (layout === 'thin') {
+    // 970x90, 728x90, 468x60, 320x50
+    const tiny = W < 400;
+    const showPhoto = W >= 468;
+    const pw = Math.round(H * 1.6);
+    ad.style.fontSize = (tiny ? H * 0.22 : H * 0.19) + 'px';
+    const pad = H * 0.2;
+    html = `${showPhoto ? photo(`left:0;top:0;width:${pw}px;height:${H}px`) : ''}
+      <div style="position:absolute;left:${showPhoto ? pw + pad : pad}px;right:${pad}px;top:0;bottom:0;display:flex;align-items:center;gap:${pad}px">
+        ${brand(false)}
+        <div style="flex:1;min-width:0">
+          <div class="h" style="font-size:${tiny ? 1 : 1.05}em">${tiny ? 'Home physio visits' : W >= 900 ? HEAD : 'Physiotherapy at home'}</div>
+          ${W >= 900 ? `<div class="s" style="font-size:.66em;margin-top:.25em">${SUB}</div>` : ''}
+        </div>
+        <span class="cta" style="font-size:${tiny ? .78 : .78}em;padding:${tiny ? '.55em .9em' : '.75em 1.15em'}">${tiny ? 'Book' : CTA} ${arrow}</span>
+      </div>`;
+  }
+
+  if (layout === 'mlarge') {
+    // 320x100
+    ad.style.fontSize = '13px';
+    html = `<div style="position:absolute;inset:0;padding:10px 12px;display:flex;flex-direction:column;justify-content:space-between">
+        <div style="display:flex;align-items:center;justify-content:space-between">${brand(false)}<span class="url" style="font-size:.85em">${URL}</span></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <div class="h" style="font-size:1.12em">Physiotherapy<br>in your own home</div>
+          <span class="cta" style="font-size:.9em;padding:.6em .95em">Book ${arrow}</span>
+        </div>
+      </div>`;
+  }
+
+  if (layout === 'wide') {
+    // 970x250
+    ad.style.fontSize = (H / 14.5) + 'px';
+    html = `${photo(`left:${W * 0.5}px;top:0;width:${W * 0.5}px;height:${H}px`, 'fade-l')}
+      <div style="position:absolute;left:0;top:0;bottom:0;width:${W * 0.6}px;padding:1em 1.8em;display:flex;flex-direction:column;justify-content:center;gap:.5em">
+        ${brand(true)}
+        <div class="h" style="font-size:1.8em;margin-top:.15em">${HEAD}</div>
+        <div class="s" style="font-size:.8em">${SUB}</div>
+        <div style="display:flex;align-items:center;gap:1em;margin-top:.35em">
+          <span class="cta" style="font-size:.85em">${CTA} ${arrow}</span>
+          <span class="url" style="font-size:.8em">${URL}</span>
+        </div>
+      </div>`;
+  }
+
+  if (layout === 'rect') {
+    // 300x250, 336x280, 250x250
+    const ph = Math.round(H * 0.5);
+    ad.style.fontSize = (W / 23) + 'px';
+    html = `${photo(`left:0;top:0;width:${W}px;height:${ph}px`)}
+      <div style="position:absolute;left:.65em;top:.65em;padding:.35em .65em .35em .4em;border-radius:999px;background:rgba(255,255,255,.95);box-shadow:0 .2em .6em rgba(11,42,91,.15);font-size:.9em">${brand(false)}</div>
+      <div style="position:absolute;left:0;right:0;top:${ph}px;bottom:0;padding:.7em .9em .8em;display:flex;flex-direction:column;justify-content:space-between">
+        <div>
+          <div class="h" style="font-size:1.32em">${HEAD}</div>
+          <div class="s" style="font-size:.74em;margin-top:.3em;display:flex;align-items:center;gap:.3em">${check} HCPC registered &middot; No GP referral</div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:.5em">
+          <span class="cta" style="font-size:.86em;padding:.6em .95em">${CTA} ${arrow}</span>
+          <span class="url" style="font-size:.7em">${URL}</span>
+        </div>
+      </div>`;
+  }
+
+  if (layout === 'tall') {
+    // 300x600, 160x600, 320x480
+    const narrow = W < 200;
+    ad.style.fontSize = (narrow ? 12.5 : W / 17) + 'px';
+    html = `<div style="position:absolute;inset:0;display:flex;flex-direction:column">
+        <div style="padding:1.1em 1em .8em">
+          ${brand(!narrow)}
+          <div class="h" style="font-size:${narrow ? 1.6 : 1.55}em;margin-top:.7em">${HEAD}</div>
+          <div class="s" style="font-size:.74em;margin-top:.45em">${narrow ? 'Chartered &amp; HCPC registered physio visiting Manchester, Stockport &amp; Cheshire' : SUB}</div>
+        </div>
+        <div style="position:relative;flex:1">${photo('inset:0')}</div>
+        <div style="padding:.9em 1em 1em;display:flex;flex-direction:column;align-items:stretch;gap:.6em;text-align:center">
+          <div class="s" style="font-size:.72em;display:flex;align-items:center;justify-content:center;gap:.3em">${check} No GP referral needed</div>
+          <span class="cta" style="font-size:${narrow ? .82 : .9}em">${narrow ? 'Book a visit' : CTA} ${arrow}</span>
+          <span class="url" style="font-size:.75em">${URL}</span>
+        </div>
+      </div>`;
+  }
+
+  if (layout === 'og') {
+    // 1200x630 social share image for the website
+    ad.style.fontSize = '22px';
+    html = `${photo(`left:${W * 0.42}px;top:0;width:${W * 0.58}px;height:${H}px`, 'fade-l')}
+      <div style="position:absolute;left:0;top:0;bottom:0;width:${W * 0.55}px;padding:2.6em 2.4em;display:flex;flex-direction:column;justify-content:center;gap:.9em">
+        ${brand(true)}
+        <div class="h" style="font-size:2.75em;margin-top:.3em">Home physiotherapy in Manchester &amp; Cheshire</div>
+        <div class="s" style="font-size:.95em">Chartered physiotherapist visiting you at home. HCPC registered &middot; No GP referral needed.</div>
+        <div style="display:flex;align-items:center;gap:.6em;margin-top:.4em">
+          <span class="pill" style="font-size:.8em">${check} HCPC registered</span>
+          <span class="pill" style="font-size:.8em">${check} Fully insured</span>
+          <span class="url" style="font-size:.95em;margin-left:.4em">${URL}</span>
+        </div>
+      </div>`;
+  }
+
+  ad.innerHTML = html;
+</script>
+</body>
+</html>

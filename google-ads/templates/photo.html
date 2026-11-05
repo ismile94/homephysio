@@ -1,0 +1,26 @@
+<!doctype html>
+<!--
+  Clean photo crop for responsive display / Performance Max image assets.
+  Google recommends no text or logo burned into these, so this is the photo only.
+  photo.html?w=1200&h=628&src=living-room.jpg&pos=center
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; }
+  #ad { position: absolute; left: 0; top: 0; background-size: cover; background-repeat: no-repeat; }
+</style>
+</head>
+<body>
+<div id="ad"></div>
+<script>
+  const q = new URLSearchParams(location.search);
+  const ad = document.getElementById('ad');
+  ad.style.width = q.get('w') + 'px';
+  ad.style.height = q.get('h') + 'px';
+  ad.style.backgroundImage = `url(../photos/${q.get('src')})`;
+  ad.style.backgroundPosition = q.get('pos') || 'center';
+</script>
+</body>
+</html>

@@ -19,6 +19,8 @@ export type IconName =
   | 'whatsapp'
   | 'pin'
   | 'calendar'
+  | 'clock'
+  | 'user'
   | 'arrow'
   | 'check'
   | 'chevron';
@@ -122,6 +124,18 @@ const paths: Record<IconName, JSX.Element> = {
     <>
       <rect x="3.5" y="5" width="17" height="15.5" rx="2" />
       <path d="M3.5 9.8h17M8.5 3v4M15.5 3v4" />
+    </>
+  ),
+  clock: (
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 7.5V12l3 2" />
+    </>
+  ),
+  user: (
+    <>
+      <circle cx="12" cy="8" r="3.6" />
+      <path d="M5 20a7 7 0 0 1 14 0" />
     </>
   ),
   arrow: <path d="M4.5 12h14M13 6.5l5.5 5.5-5.5 5.5" />,

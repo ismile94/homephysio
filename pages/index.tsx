@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import Seo from '@/components/Seo';
-import Icon from '@/components/Icon';
+import Icon, { type IconName } from '@/components/Icon';
 import { BrandWordmark } from '@/components/Logo';
 import Reveal from '@/components/Reveal';
 import PhoneContact from '@/components/PhoneContact';
@@ -12,11 +12,24 @@ import { LIMITS, isValidEmail } from '@/lib/validate';
 
 const navLinks = [
   { href: '#services', label: 'Services' },
+  { href: '#about', label: 'About' },
   { href: '#approach', label: 'Our Approach' },
   { href: '#process', label: 'Process' },
   { href: '#faq', label: 'FAQ' },
   { href: '#contact', label: 'Contact' },
 ];
+
+const featurePoints: { icon: IconName; title: string; body: string }[] = [
+  { icon: 'home', title: 'Home visits', body: 'Manchester, Stockport & Cheshire' },
+  { icon: 'check', title: 'No GP referral', body: 'Book directly with me' },
+  { icon: 'clock', title: '60-min assessment', body: 'Unhurried first visit' },
+  { icon: 'user', title: '1-to-1 care', body: 'Same physio every visit' },
+];
+
+const initials = site.practitioner
+  .split(' ')
+  .map((part) => part[0])
+  .join('');
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -173,70 +186,57 @@ export default function Home() {
 
       <main>
         <section id="home" className="hero">
-          <div className="shell hero-grid">
-            <div>
+          <div className="hero-main">
+            <div className="hero-bg">
+              <img
+                src="/evhastasi.jpg"
+                alt="Physiotherapist supporting a patient walking with crutches at home"
+                width={1024}
+                height={625}
+              />
+            </div>
+
+            <div className="shell hero-inner">
               <h1>Home physiotherapy in Manchester &amp; Cheshire</h1>
 
               <p className="hero-lede">
-                I provide assessment, rehabilitation and ongoing treatment in your home, with a
+                Assessment, rehabilitation and ongoing treatment in your own home, with a
                 programme tailored to your needs and goals.
               </p>
 
-              <p className="hero-registration">
-                <Icon name="shield" size={16} />
-                <span>HCPC Registered &middot; No. {site.hcpcNumber}</span>
+              <div className="hero-actions">
                 <a
-                  href={site.hcpcRegisterUrl}
+                  className="btn btn--whatsapp"
+                  href={site.whatsAppHref}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label={`Verify HCPC registration ${site.hcpcNumber} (opens in a new tab)`}
+                  aria-label="Chat on WhatsApp (opens in a new tab)"
                 >
-                  Check the register
-                  <Icon name="arrow" size={13} />
+                  <Icon name="whatsapp" size={20} />
+                  Chat on WhatsApp
+                  <Icon name="arrow" size={15} strokeWidth={2} />
                 </a>
-              </p>
-
-              <div className="hero-actions">
-                <PhoneContact />
+                <a className="btn btn--call" href={site.phoneHref} aria-label={`Call ${site.phone}`}>
+                  <Icon name="phone" size={19} />
+                  <span className="btn-stack">
+                    <strong>Call Now</strong>
+                    <small>{site.phone}</small>
+                  </span>
+                </a>
               </div>
             </div>
+          </div>
 
-            <div className="hero-visual">
-              <div className="hero-photo">
-                <img
-                  src="/evhastasi.jpg"
-                  alt="Physiotherapist supporting a patient walking with crutches at home"
-                  width={1024}
-                  height={625}
-                />
-              </div>
-
-              <aside className="practice-summary" aria-label="Your physiotherapist">
-                <p className="practice-summary-label">Your physiotherapist</p>
-                <h2>{site.practitioner}</h2>
-                <p className="practice-summary-credentials">
-                  {site.role} &middot; {site.postNominals}
-                </p>
-                <ul className="practice-summary-points">
-                  <li>
-                    <strong>60 min</strong>
-                    <span>First assessment</span>
-                  </li>
-                  <li>
-                    <strong>45&ndash;60 min</strong>
-                    <span>Every session</span>
-                  </li>
-                  <li>
-                    <strong>1-to-1</strong>
-                    <span>Same physio throughout</span>
-                  </li>
-                </ul>
-                <p className="practice-summary-note">
-                  <Icon name="check" size={15} strokeWidth={2.2} />
-                  Unhurried, evidence-based care at home
-                </p>
-              </aside>
-            </div>
+          <div className="shell">
+            <ul className="feature-strip">
+              {featurePoints.map((point) => (
+                <li key={point.title}>
+                  <Icon name={point.icon} size={22} strokeWidth={1.8} />
+                  <strong>{point.title}</strong>
+                  <span>{point.body}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
 
@@ -271,6 +271,84 @@ export default function Home() {
                 </Reveal>
               ))}
             </div>
+          </div>
+        </section>
+
+        <section id="about" className="section section--surface section--tight">
+          <div className="shell">
+            <Reveal>
+              <article className="physio-card">
+                <div className="physio-photo">
+                  {site.practitionerPhoto ? (
+                    <img src={site.practitionerPhoto} alt={site.practitioner} />
+                  ) : (
+                    <span className="physio-monogram" aria-hidden="true">
+                      {initials}
+                    </span>
+                  )}
+                </div>
+
+                <div className="physio-body">
+                  <h2>Meet your physiotherapist</h2>
+                  <p>
+                    I&apos;m <strong>{site.practitioner}</strong>, a {site.role} (
+                    {site.postNominals}) treating adults of all ages and conditions in their own
+                    homes.
+                  </p>
+                  <p>
+                    My goal is evidence-based, personalised care &mdash; with unhurried
+                    appointments and the same physio at every visit.
+                  </p>
+                </div>
+
+                <ul className="physio-points">
+                  <li>
+                    <strong>60 min</strong>
+                    <span>First assessment</span>
+                  </li>
+                  <li>
+                    <strong>45&ndash;60 min</strong>
+                    <span>Every session</span>
+                  </li>
+                  <li>
+                    <strong>1-to-1</strong>
+                    <span>Same physio</span>
+                  </li>
+                </ul>
+
+                <a href="#contact" className="btn btn--navy physio-cta">
+                  Arrange a home visit
+                  <Icon name="arrow" size={15} strokeWidth={2} />
+                </a>
+
+                <ul className="physio-creds" aria-label="Registration and insurance">
+                  <li>
+                    <a
+                      href={site.hcpcRegisterUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`HCPC registered, number ${site.hcpcNumber} - verify on the register (opens in a new tab)`}
+                    >
+                      <span className="cred-mark cred-mark--hcpc">
+                        hcpc
+                        <small>registered</small>
+                      </span>
+                      <span className="cred-note">No. {site.hcpcNumber}</span>
+                    </a>
+                  </li>
+                  <li>
+                    <span className="cred-mark cred-mark--csp">CSP</span>
+                    <span className="cred-note">Chartered Society of Physiotherapy &middot; MCSP</span>
+                  </li>
+                  <li>
+                    <span className="cred-mark cred-mark--ins">
+                      <Icon name="shield" size={22} strokeWidth={1.8} />
+                    </span>
+                    <span className="cred-note">Fully insured &amp; Enhanced DBS checked</span>
+                  </li>
+                </ul>
+              </article>
+            </Reveal>
           </div>
         </section>
 
@@ -385,17 +463,58 @@ export default function Home() {
         <section id="contact" className="contact section">
           <div className="shell">
             <div className="contact-grid">
-              <Reveal from="left">
-                <p className="eyebrow">Contact</p>
-                <h2>Arrange a home visit</h2>
-                <p className="contact-lede">
-                  Tell me what&apos;s happened and what you want to get back to. I&apos;ll answer any
-                  questions and we&apos;ll arrange a visit that suits you.
-                </p>
-
-                <div className="contact-lines">
-                  <PhoneContact variant="contact" />
+              <Reveal>
+                <div className="cta-banner">
+                  <span className="cta-icon" aria-hidden="true">
+                    <Icon name="home" size={30} strokeWidth={1.4} />
+                  </span>
+                  <div className="cta-copy">
+                    <h2>Arrange a home visit</h2>
+                    <p>
+                      Tell me what&apos;s happened and what you want to get back to &mdash;
+                      we&apos;ll arrange a visit that suits you.
+                    </p>
+                  </div>
+                  <a
+                    className="btn btn--whatsapp"
+                    href={site.whatsAppHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Message on WhatsApp (opens in a new tab)"
+                  >
+                    <Icon name="whatsapp" size={20} />
+                    Message on WhatsApp
+                    <Icon name="arrow" size={15} strokeWidth={2} />
+                  </a>
                 </div>
+
+                <ul className="contact-info">
+                  <li>
+                    <Icon name="pin" size={22} />
+                    <div>
+                      <strong>Serving {site.coverage.towns.length} towns</strong>
+                      <span>{site.coverage.label} and surrounding areas</span>
+                    </div>
+                  </li>
+                  <li>
+                    <a href={site.phoneHref}>
+                      <Icon name="phone" size={22} />
+                      <div>
+                        <strong>{site.phone}</strong>
+                        <span>Call for advice or to book</span>
+                      </div>
+                    </a>
+                  </li>
+                  <li>
+                    <a href={site.smsHref}>
+                      <Icon name="message" size={22} />
+                      <div>
+                        <strong>Send a message</strong>
+                        <span>I reply within {site.responseTime}</span>
+                      </div>
+                    </a>
+                  </li>
+                </ul>
 
                 <div className="coverage-area">
                   <h3>

@@ -1778,7 +1778,7 @@ a.contact-item:hover {
 
 .footer-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
   gap: clamp(2rem, 4vw, 3.5rem);
   padding-bottom: 2.5rem;
   border-bottom: 1px solid var(--line);
@@ -1798,6 +1798,12 @@ a.contact-item:hover {
   text-transform: uppercase;
   color: var(--ink);
   margin-bottom: 1rem;
+}
+
+.footer-links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, max-content));
+  column-gap: clamp(2rem, 6vw, 4rem);
 }
 
 .footer li {
@@ -1828,10 +1834,8 @@ a.contact-item:hover {
 
 @media (max-width: 780px) {
   .footer-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-  .footer-brand {
-    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.75rem;
   }
 }
 
@@ -1862,13 +1866,14 @@ a.contact-item:hover {
 .modal {
   position: relative;
   width: 100%;
-  max-width: 640px;
-  max-height: min(86vh, 800px);
+  max-width: 600px;
+  max-height: min(88vh, 760px);
   overflow-y: auto;
-  padding: clamp(1.6rem, 3.5vw, 2.5rem);
+  padding: clamp(1.2rem, 3vw, 1.75rem);
   background: var(--white);
   border-radius: var(--r-lg);
   box-shadow: var(--shadow-lg);
+  outline: none;
   animation: modalIn 0.45s var(--ease-out) both;
 }
 
@@ -1879,83 +1884,47 @@ a.contact-item:hover {
   }
 }
 
-.modal-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1.25rem;
-  padding-bottom: 1.35rem;
-  border-bottom: 1px solid var(--line);
-}
-
-.modal-head-icon {
-  display: grid;
-  place-items: center;
-  width: 48px;
-  height: 48px;
-  flex: none;
-  border-radius: 14px;
-  color: var(--white);
-  background: linear-gradient(135deg, var(--blue-500), var(--blue-700));
-  margin-bottom: 0.85rem;
-}
-
 .modal h2 {
-  font-family: var(--display);
-  font-weight: 500;
-  font-size: clamp(1.4rem, 2.6vw, 1.85rem);
-  line-height: 1.14;
-  letter-spacing: -0.022em;
+  font-size: clamp(1.2rem, 2.4vw, 1.45rem);
+  line-height: 1.2;
   color: var(--ink);
 }
 
-.close-btn {
-  display: grid;
-  place-items: center;
-  flex: none;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  color: var(--muted);
-  background: var(--surface-2);
-  transition: background 0.3s var(--ease), color 0.3s var(--ease), transform 0.3s var(--ease);
-}
-
-.close-btn:hover {
-  background: var(--blue-50);
-  color: var(--blue-700);
-  transform: rotate(90deg);
-}
-
 .modal > p {
-  color: var(--muted);
-  font-size: var(--fs-sm);
-  line-height: 1.72;
-  padding: 1.35rem 0 0.25rem;
+  margin-top: 0.5rem;
+  color: var(--body);
+  font-size: 0.88rem;
+  line-height: 1.6;
 }
 
 .modal h3 {
-  font-size: var(--fs-xs);
+  margin: 1.1rem 0 0.4rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--blue-700);
-  margin: 1.75rem 0 0.9rem;
+}
+
+.modal ul {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 1rem;
 }
 
 .modal li {
   display: flex;
   align-items: flex-start;
-  gap: 0.65rem;
-  font-size: var(--fs-sm);
+  gap: 0.45rem;
+  padding: 0.2rem 0;
   color: var(--body);
-  padding: 0.4rem 0;
-  line-height: 1.6;
+  font-size: 0.85rem;
+  line-height: 1.45;
 }
 
 .modal li svg {
   flex: none;
-  margin-top: 0.3rem;
+  margin-top: 0.2rem;
   color: var(--blue-600);
 }
 
@@ -1963,15 +1932,35 @@ a.contact-item:hover {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.85rem;
-  margin-top: 2rem;
-  padding-top: 1.5rem;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
   border-top: 1px solid var(--line);
 }
 
-.modal-foot p {
-  font-size: var(--fs-xs);
-  color: var(--muted-2);
+.modal-close {
+  margin-left: auto;
+  padding: 0.55rem 1.1rem;
+  border-radius: 100px;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: background 0.25s var(--ease);
+}
+
+.modal-close:hover {
+  background: var(--blue-100);
+}
+
+@media (max-width: 560px) {
+  .modal ul {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .modal li {
+    padding: 0.15rem 0;
+  }
 }
 
 @media (max-width: 980px) {
@@ -2209,12 +2198,12 @@ a.contact-item:hover {
 /* Meet your physiotherapist */
 .physio-card {
   display: grid;
-  grid-template-columns: minmax(200px, 0.8fr) minmax(0, 1.7fr) minmax(170px, 0.65fr);
+  grid-template-columns: minmax(0, 1fr) minmax(190px, 0.34fr);
   grid-template-rows: auto auto 1fr;
   grid-template-areas:
-    'photo body creds'
-    'photo points creds'
-    'photo cta creds';
+    'body creds'
+    'points creds'
+    'cta creds';
   column-gap: clamp(1.25rem, 3vw, 2.25rem);
   overflow: hidden;
   border: 1px solid var(--line);
@@ -2223,37 +2212,10 @@ a.contact-item:hover {
   box-shadow: var(--card-shadow-hover);
 }
 
-.physio-photo {
-  grid-area: photo;
-  position: relative;
-  display: grid;
-  place-items: center;
-  min-height: 100%;
-  background:
-    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.9), transparent 60%),
-    linear-gradient(160deg, var(--blue-100) 0%, var(--blue-200) 100%);
-}
-
-.physio-photo img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.physio-monogram {
-  display: grid;
-  place-items: center;
-  width: clamp(96px, 12vw, 132px);
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: var(--white);
-  color: var(--ink);
-  font-size: clamp(2rem, 3.5vw, 2.8rem);
-  font-weight: 700;
-  letter-spacing: -0.04em;
-  box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.5), 0 14px 30px rgba(11, 42, 91, 0.15);
+.physio-body,
+.physio-points,
+.physio-cta {
+  margin-left: clamp(1.5rem, 3.5vw, 2.75rem);
 }
 
 .physio-body {
@@ -2318,7 +2280,8 @@ a.contact-item:hover {
   grid-area: cta;
   justify-self: start;
   align-self: start;
-  margin: 1.2rem 0 clamp(1.5rem, 3vw, 2.25rem);
+  margin-top: 1.2rem;
+  margin-bottom: clamp(1.5rem, 3vw, 2.25rem);
 }
 
 /* Credentials sit on the card's edge, split off by a divider */
@@ -2377,11 +2340,9 @@ a.contact-item:hover {
   letter-spacing: 0.04em;
 }
 
-.cred-mark--csp {
-  font-size: 1.4rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: #3b2a78;
+.cred-logo {
+  width: 116px;
+  height: auto;
 }
 
 .cred-mark--ins {
@@ -2743,11 +2704,6 @@ a.contact-item:hover {
   box-shadow: inset 0 0 0 1px var(--line), var(--card-shadow);
 }
 
-.modal-head-icon {
-  background: var(--blue-50);
-  color: var(--blue-700);
-}
-
 [data-js='ready'] .reveal,
 [data-js='ready'] .reveal--up,
 [data-js='ready'] .reveal--left,
@@ -2769,13 +2725,19 @@ a.contact-item:hover {
   }
 
   .physio-card {
-    grid-template-columns: minmax(150px, 0.7fr) minmax(0, 1.6fr);
-    grid-template-rows: auto auto auto auto;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
     grid-template-areas:
-      'photo body'
-      'photo points'
-      'photo cta'
-      'creds creds';
+      'body'
+      'points'
+      'cta'
+      'creds';
+  }
+
+  .physio-body,
+  .physio-points,
+  .physio-cta {
+    margin-inline: clamp(1.15rem, 4vw, 2rem);
   }
 
   .physio-creds {
@@ -2799,10 +2761,6 @@ a.contact-item:hover {
     border-left: 1px solid var(--line);
   }
 
-  .physio-body {
-    padding-right: 1.25rem;
-  }
-
   .cta-banner {
     flex-wrap: wrap;
   }
@@ -2813,61 +2771,37 @@ a.contact-item:hover {
 }
 
 @media (max-width: 720px) {
-  /* Photo + copy stay side by side; points and button run full width below. */
-  .physio-card {
-    grid-template-columns: 38% minmax(0, 1fr);
-    grid-template-areas:
-      'photo body'
-      'points points'
-      'cta cta'
-      'creds creds';
-    column-gap: 1rem;
-  }
-
-  .physio-photo {
-    min-height: 170px;
-  }
-
   .physio-body {
-    align-self: center;
-    padding: 1.15rem 1rem 1.15rem 0;
+    padding-top: 1.25rem;
   }
 
   .physio-body h2 {
-    font-size: 1.12rem;
+    font-size: 1.2rem;
   }
 
   .physio-body p {
-    margin-top: 0.4rem;
-    font-size: 0.8rem;
-    line-height: 1.5;
-  }
-
-  .physio-body p + p {
-    display: none;
+    margin-top: 0.45rem;
+    font-size: 0.85rem;
+    line-height: 1.55;
   }
 
   .physio-points {
     max-width: none;
-    margin: 1rem 1rem 0;
+    margin-top: 0.9rem;
   }
 
   .physio-cta {
     justify-self: stretch;
-    margin: 0.85rem 1rem 1rem;
-  }
-
-  .physio-monogram {
-    width: 84px;
-    font-size: 1.8rem;
+    margin-top: 0.9rem;
+    margin-bottom: 1.15rem;
   }
 
   .cred-mark--hcpc {
     font-size: 1.35rem;
   }
 
-  .cred-mark--csp {
-    font-size: 1.15rem;
+  .cred-logo {
+    width: 88px;
   }
 
   .cred-mark--ins {

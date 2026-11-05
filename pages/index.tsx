@@ -25,12 +25,6 @@ const featurePoints: { icon: IconName; title: string; body: string }[] = [
   { icon: 'clock', title: '60-min assessment', body: 'Unhurried first visit' },
   { icon: 'user', title: '1-to-1 care', body: 'Same physio every visit' },
 ];
-
-const initials = site.practitioner
-  .split(' ')
-  .map((part) => part[0])
-  .join('');
-
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeService, setActiveService] = useState<ServiceData | null>(null);
@@ -47,7 +41,7 @@ export default function Home() {
   const [formError, setFormError] = useState<string | null>(null);
   const formMountedAt = useRef(Date.now());
   const processRef = useRef<HTMLDivElement>(null);
-  const modalCloseRef = useRef<HTMLButtonElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setYear(new Date().getFullYear());
@@ -86,12 +80,12 @@ export default function Home() {
     return () => observer.disconnect();
   }, []);
 
-  // Modal: lock scroll, focus the close button, close on Escape.
+  // Modal: lock scroll, move focus into the dialog, close on Escape.
   useEffect(() => {
     if (!activeService) return;
 
     const opener = document.activeElement as HTMLElement | null;
-    modalCloseRef.current?.focus();
+    modalRef.current?.focus();
     const { overflow } = document.body.style;
     document.body.style.overflow = 'hidden';
 
@@ -278,16 +272,6 @@ export default function Home() {
           <div className="shell">
             <Reveal>
               <article className="physio-card">
-                <div className="physio-photo">
-                  {site.practitionerPhoto ? (
-                    <img src={site.practitionerPhoto} alt={site.practitioner} />
-                  ) : (
-                    <span className="physio-monogram" aria-hidden="true">
-                      {initials}
-                    </span>
-                  )}
-                </div>
-
                 <div className="physio-body">
                   <h2>Meet your physiotherapist</h2>
                   <p>
@@ -337,8 +321,14 @@ export default function Home() {
                     </a>
                   </li>
                   <li>
-                    <span className="cred-mark cred-mark--csp">CSP</span>
-                    <span className="cred-note">Chartered Society of Physiotherapy &middot; MCSP</span>
+                    <img
+                      className="cred-logo"
+                      src="/csp-logo.svg"
+                      alt="The Chartered Society of Physiotherapy"
+                      width={146}
+                      height={74}
+                    />
+                    <span className="cred-note">Member (MCSP)</span>
                   </li>
                   <li>
                     <span className="cred-mark cred-mark--ins">
@@ -655,7 +645,7 @@ export default function Home() {
 
             <div>
               <h4>Sections</h4>
-              <ul>
+              <ul className="footer-links">
                 {navLinks.map((link) => (
                   <li key={link.href}>
                     <a href={link.href}>{link.label}</a>
@@ -664,15 +654,6 @@ export default function Home() {
               </ul>
             </div>
 
-            <div>
-              <h4>Contact</h4>
-              <ul>
-                <li>
-                  <PhoneContact variant="footer" />
-                </li>
-                <li>Home visits by appointment</li>
-              </ul>
-            </div>
           </div>
 
           <div className="footer-legal">
@@ -689,46 +670,32 @@ export default function Home() {
       {activeService && (
         <div className="modal-backdrop" onClick={() => setActiveService(null)}>
           <div
+            ref={modalRef}
+            tabIndex={-1}
             className="modal"
             role="dialog"
             aria-modal="true"
             aria-labelledby="modal-title"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="modal-head">
-              <div>
-                <span className="modal-head-icon">
-                  <Icon name={activeService.icon} size={22} />
-                </span>
-                <h2 id="modal-title">{activeService.title}</h2>
-              </div>
-              <button
-                ref={modalCloseRef}
-                className="close-btn"
-                onClick={() => setActiveService(null)}
-                aria-label="Close"
-              >
-                &#10005;
-              </button>
-            </div>
-
+            <h2 id="modal-title">{activeService.title}</h2>
             <p>{activeService.description}</p>
 
-            <h3>Conditions Treated</h3>
+            <h3>Conditions treated</h3>
             <ul>
               {activeService.conditions.map((item) => (
                 <li key={item}>
-                  <Icon name="check" size={15} strokeWidth={2} />
+                  <Icon name="check" size={14} strokeWidth={2} />
                   {item}
                 </li>
               ))}
             </ul>
 
-            <h3>Treatment Approaches</h3>
+            <h3>Treatment approaches</h3>
             <ul>
               {activeService.treatments.map((item) => (
                 <li key={item}>
-                  <Icon name="check" size={15} strokeWidth={2} />
+                  <Icon name="check" size={14} strokeWidth={2} />
                   {item}
                 </li>
               ))}
@@ -736,6 +703,9 @@ export default function Home() {
 
             <div className="modal-foot">
               <PhoneContact variant="modal" />
+              <button type="button" className="modal-close" onClick={() => setActiveService(null)}>
+                Close
+              </button>
             </div>
           </div>
         </div>

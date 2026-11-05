@@ -16,11 +16,7 @@ export const site = {
   brandName: 'PhysioVisit',
   practitioner: 'Ismail Aram',
   postNominals: 'BSc (Hons) MCSP',
-  role: 'Chartered Physiotherapist',
-  /** Portrait for the "Meet your physiotherapist" card, e.g. '/images/ismail.jpg'.
-   *  Leave empty to show the initials instead. */
-  practitionerPhoto: '' as string,
-  hcpcNumber: 'PH134486',
+  role: 'Chartered Physiotherapist',  hcpcNumber: 'PH134486',
   hcpcRegisterUrl:
     'https://www.hcpc-uk.org/check-the-register/professional-registration-detail/?query=PH134486&profession=PH',
 

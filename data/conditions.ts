@@ -152,7 +152,7 @@ export interface ProcessStep {
 export const processSteps: ProcessStep[] = [
   {
     title: 'Initial Contact',
-    body: 'Call, email, or use our contact form to discuss your needs and book a free consultation.',
+    body: 'Call, text or WhatsApp me to discuss your needs and arrange an initial assessment.',
   },
   {
     title: 'Assessment Visit',
@@ -166,11 +166,4 @@ export const processSteps: ProcessStep[] = [
     title: 'Ongoing Care',
     body: 'Regular treatment sessions with continuous monitoring, adjustment, and support.',
   },
-];
-
-/** Trust markers shown under the hero. */
-export const trustPoints = [
-  { icon: 'shield' as IconName, title: 'HCPC Registered', body: 'Health & Care Professions Council' },
-  { icon: 'chartered' as IconName, title: 'Chartered Physiotherapist', body: 'Member of CSP (MCSP)' },
-  { icon: 'home' as IconName, title: 'Home Visit Specialist', body: 'Fully Insured & DBS Checked' },
 ];

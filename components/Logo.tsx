@@ -68,4 +68,17 @@ export function BrandLogo() {
   );
 }
 
+/** Logo plus the set wordmark, shared by the nav and footer. */
+export function BrandWordmark() {
+  return (
+    <>
+      <BrandLogo />
+      <span className="logo-text">
+        <span className="logo-name">{site.brandName}</span>
+        <span className="logo-tag">Home Physiotherapy</span>
+      </span>
+    </>
+  );
+}
+
 export default LogoMark;

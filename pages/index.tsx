@@ -1,30 +1,21 @@
 import { useState, useEffect, useRef } from 'react';
 import Seo from '@/components/Seo';
 import Icon from '@/components/Icon';
-import { BrandLogo } from '@/components/Logo';
+import { BrandWordmark } from '@/components/Logo';
 import Reveal from '@/components/Reveal';
-import Counter from '@/components/Counter';
 import PhoneContact from '@/components/PhoneContact';
 import { servicesData, type ServiceData } from '@/data/services';
-import { conditionGroups, approachCards, processSteps, trustPoints } from '@/data/conditions';
+import { approachCards, processSteps } from '@/data/conditions';
 import { faqs } from '@/data/faqs';
 import { site, townLabel } from '@/data/site';
 import { LIMITS, isValidEmail } from '@/lib/validate';
 
 const navLinks = [
   { href: '#services', label: 'Services' },
-  { href: '#conditions', label: 'Conditions' },
   { href: '#approach', label: 'Our Approach' },
   { href: '#process', label: 'Process' },
   { href: '#faq', label: 'FAQ' },
-];
-
-/** Only figures that are literally true of the practice — nothing invented. */
-const stats = [
-  { value: Object.keys(servicesData).length, suffix: '', label: 'Specialist service areas' },
-  { value: site.coverage.towns.length, suffix: '', label: 'Towns covered by home visit' },
-  { value: 60, suffix: ' min', label: 'Initial home assessment' },
-  { value: 0, suffix: '', label: 'GP referrals needed' },
+  { href: '#contact', label: 'Contact' },
 ];
 
 export default function Home() {
@@ -156,8 +147,7 @@ export default function Home() {
       <header className="nav" data-scrolled={scrolled}>
         <div className="nav-inner">
           <a href="#home" className="logo" aria-label={`${site.brandName} - back to top`}>
-            <BrandLogo />
-            {site.brandName}
+            <BrandWordmark />
           </a>
 
           <button
@@ -176,9 +166,6 @@ export default function Home() {
                 {link.label}
               </a>
             ))}
-            <a href="#contact" className="nav-cta" onClick={() => setMenuOpen(false)}>
-              Book Consultation
-            </a>
           </nav>
         </div>
         <div className="nav-progress" style={{ transform: `scaleX(${progress})`, width: '100%' }} />
@@ -186,28 +173,16 @@ export default function Home() {
 
       <main>
         <section id="home" className="hero">
-          <div className="aurora" aria-hidden="true">
-            <span />
-            <span />
-            <span />
-          </div>
-
           <div className="shell hero-grid">
             <div>
-              <h1 className="rise" style={{ animationDelay: '0.15s' }}>
-                <span className="highlight">Home Physiotherapy</span> in Manchester &amp; Cheshire
-              </h1>
+              <h1>Home physiotherapy in Manchester &amp; Cheshire</h1>
 
-              {/* Credentials live in the trust strip directly below — repeating them
-                  here only crowded the hero, badly so once they wrapped on mobile. */}
-              <p className="hero-lede rise" style={{ animationDelay: '0.28s' }}>
-                Delivering specialist, evidence-based physiotherapy care in the comfort and safety of
-                your own home, across Stockport, Altrincham, Wilmslow, Macclesfield and south
-                Manchester. Comprehensive rehabilitation programmes tailored to your individual needs
-                and goals.
+              <p className="hero-lede">
+                I provide assessment, rehabilitation and ongoing treatment in your home, with a
+                programme tailored to your needs and goals.
               </p>
 
-              <p className="hero-registration rise" style={{ animationDelay: '0.34s' }}>
+              <p className="hero-registration">
                 <Icon name="shield" size={16} />
                 <span>HCPC Registered &middot; No. {site.hcpcNumber}</span>
                 <a
@@ -221,55 +196,46 @@ export default function Home() {
                 </a>
               </p>
 
-              <div className="hero-actions rise" style={{ animationDelay: '0.4s' }}>
-                <a href="#contact" className="btn btn--primary">
-                  <Icon name="calendar" size={18} />
-                  Book Your Consultation
-                </a>
-                <PhoneContact triggerClassName="btn btn--ghost" placement="up" align="right" />
+              <div className="hero-actions">
+                <PhoneContact />
               </div>
             </div>
 
-            <div className="hero-figure">
-              <div className="hero-image">
+            <div className="hero-visual">
+              <div className="hero-photo">
                 <img
                   src="/evhastasi.jpg"
-                  alt="Physiotherapist supporting a patient through a mobility exercise at home"
-                  width={880}
-                  height={1000}
-                  loading="eager"
-                  decoding="async"
+                  alt="Physiotherapist supporting a patient walking with crutches at home"
+                  width={1024}
+                  height={625}
                 />
               </div>
-              <div className="hero-badge">
-                <span className="hero-badge-icon">
-                  <Icon name="home" size={20} />
-                </span>
-                <div>
-                  <strong>No clinic to travel to</strong>
-                  <span>Every session in your own home</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
 
-        <section className="section section--surface" style={{ paddingBlock: 'clamp(3rem, 5vw, 4.5rem)' }}>
-          <div className="shell">
-            <div className="trust-grid">
-              {trustPoints.map((point, i) => (
-                <Reveal key={point.title} delay={i * 90}>
-                  <div className="trust-card">
-                    <span className="trust-icon">
-                      <Icon name={point.icon} size={24} />
-                    </span>
-                    <div>
-                      <strong>{point.title}</strong>
-                      <p>{point.body}</p>
-                    </div>
-                  </div>
-                </Reveal>
-              ))}
+              <aside className="practice-summary" aria-label="Your physiotherapist">
+                <p className="practice-summary-label">Your physiotherapist</p>
+                <h2>{site.practitioner}</h2>
+                <p className="practice-summary-credentials">
+                  {site.role} &middot; {site.postNominals}
+                </p>
+                <ul className="practice-summary-points">
+                  <li>
+                    <strong>60 min</strong>
+                    <span>First assessment</span>
+                  </li>
+                  <li>
+                    <strong>45&ndash;60 min</strong>
+                    <span>Every session</span>
+                  </li>
+                  <li>
+                    <strong>1-to-1</strong>
+                    <span>Same physio throughout</span>
+                  </li>
+                </ul>
+                <p className="practice-summary-note">
+                  <Icon name="check" size={15} strokeWidth={2.2} />
+                  Unhurried, evidence-based care at home
+                </p>
+              </aside>
             </div>
           </div>
         </section>
@@ -278,13 +244,10 @@ export default function Home() {
           <div className="shell">
             <Reveal>
               <div className="section-head">
-                <p className="eyebrow">Specialist Services</p>
-                <h2>
-                  Six areas of practice, <em>one clinician</em>
-                </h2>
+                <p className="eyebrow">Services</p>
+                <h2>Physiotherapy services at home</h2>
                 <p>
-                  Comprehensive physiotherapy care across a wide range of conditions, delivered with
-                  expertise and compassion in your home environment.
+                  Select a service to see the conditions I treat and the approaches I use.
                 </p>
               </div>
             </Reveal>
@@ -296,66 +259,15 @@ export default function Home() {
                     type="button"
                     className="service-card"
                     onClick={() => setActiveService(service)}
+                    aria-haspopup="dialog"
                   >
-                    <span className="service-icon">
-                      <Icon name={service.icon} size={26} />
-                    </span>
                     <h3>{service.title}</h3>
                     <p>{service.blurb}</p>
                     <span className="click-hint">
-                      View conditions &amp; treatments
-                      <Icon name="arrow" size={15} />
+                      View details
+                      <Icon name="arrow" size={14} strokeWidth={2} />
                     </span>
                   </button>
-                </Reveal>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="section stats-section">
-          <div className="shell">
-            <Reveal from="scale">
-              <div className="stats">
-                {stats.map((stat) => (
-                  <div className="stat" key={stat.label}>
-                    <div className="stat-value">
-                      <Counter to={stat.value} suffix={stat.suffix} />
-                    </div>
-                    <p className="stat-label">{stat.label}</p>
-                  </div>
-                ))}
-              </div>
-            </Reveal>
-          </div>
-        </section>
-
-        <section id="conditions" className="section section--surface">
-          <div className="shell">
-            <Reveal>
-              <div className="section-head">
-                <p className="eyebrow">Conditions We Treat</p>
-                <h2>
-                  Expert care across <em>every stage of recovery</em>
-                </h2>
-                <p>Expert physiotherapy for a comprehensive range of medical conditions.</p>
-              </div>
-            </Reveal>
-
-            <div className="conditions-grid">
-              {conditionGroups.map((group, i) => (
-                <Reveal key={group.title} delay={i * 60}>
-                  <div className="condition-card">
-                    <h3>
-                      <Icon name={group.icon} size={20} />
-                      {group.title}
-                    </h3>
-                    <ul>
-                      {group.items.map((item) => (
-                        <li key={item}>{item}</li>
-                      ))}
-                    </ul>
-                  </div>
                 </Reveal>
               ))}
             </div>
@@ -366,19 +278,14 @@ export default function Home() {
           <div className="shell">
             <Reveal>
               <div className="section-head">
-                <p className="eyebrow">Our Treatment Approach</p>
-                <h2>
-                  Clinical rigour, <em>delivered with care</em>
-                </h2>
-                <p>
-                  Evidence-based physiotherapy combining clinical expertise with compassionate,
-                  patient-centered care.
-                </p>
+                <p className="eyebrow">Your treatment</p>
+                <h2>What to expect from your appointments</h2>
+                <p>Clear assessment, practical goals and a plan built around your daily life.</p>
               </div>
             </Reveal>
 
             <div className="approach-grid">
-              {approachCards.map((card, i) => (
+              {approachCards.slice(0, 2).map((card, i) => (
                 <Reveal key={card.title} delay={i * 80} from={i % 2 === 0 ? 'left' : 'right'}>
                   <div className="approach-card" data-index={String(i + 1).padStart(2, '0')}>
                     <h3>{card.title}</h3>
@@ -402,11 +309,9 @@ export default function Home() {
           <div className="shell">
             <Reveal>
               <div className="section-head">
-                <p className="eyebrow">How It Works</p>
-                <h2>
-                  Four steps, <em>no waiting list</em>
-                </h2>
-                <p>A simple, straightforward process from initial contact to ongoing care.</p>
+                <p className="eyebrow">How it works</p>
+                <h2>Your care, step by step</h2>
+                <p>From your first call to your ongoing treatment.</p>
               </div>
             </Reveal>
 
@@ -434,14 +339,9 @@ export default function Home() {
           <div className="shell">
             <div className="faq-layout">
               <Reveal className="faq-aside" from="left">
-                <p className="eyebrow">Frequently Asked Questions</p>
-                <h2>
-                  Everything you need <em>to know first</em>
-                </h2>
-                <p>
-                  Fees, coverage, session length and paperwork &mdash; the things worth knowing
-                  before you commit to anything.
-                </p>
+                <p className="eyebrow">Frequently asked questions</p>
+                <h2>Practical information</h2>
+                <p>Fees, appointments, referrals and the areas covered by home visits.</p>
               </Reveal>
 
               <Reveal delay={100}>
@@ -486,21 +386,15 @@ export default function Home() {
           <div className="shell">
             <div className="contact-grid">
               <Reveal from="left">
-                <p className="eyebrow">Get in Touch</p>
-                <h2>
-                  Start your recovery <em>at home</em>
-                </h2>
+                <p className="eyebrow">Contact</p>
+                <h2>Arrange a home visit</h2>
                 <p className="contact-lede">
                   Tell me what&apos;s happened and what you want to get back to. I&apos;ll answer any
                   questions and we&apos;ll arrange a visit that suits you.
                 </p>
 
                 <div className="contact-lines">
-                  <PhoneContact triggerClassName="contact-item" />
-                  <a href={`mailto:${site.email}`} className="contact-item">
-                    <Icon name="mail" size={19} />
-                    {site.email}
-                  </a>
+                  <PhoneContact variant="contact" />
                 </div>
 
                 <div className="coverage-area">
@@ -519,7 +413,7 @@ export default function Home() {
                 </div>
               </Reveal>
 
-              <Reveal from="right" delay={100}>
+              <Reveal from="right" delay={100} className="contact-form-panel">
                 <form className="contact-form" onSubmit={handleFormSubmit} noValidate>
                   <div className="form-head">
                     <h3>Request a consultation</h3>
@@ -632,8 +526,7 @@ export default function Home() {
           <div className="footer-grid">
             <div className="footer-brand">
               <a href="#home" className="logo">
-                <BrandLogo />
-                {site.brandName}
+                <BrandWordmark />
               </a>
               <p className="footer-bio">
                 {site.practitioner} {site.postNominals} &ndash; {site.role}. Specialist home
@@ -656,21 +549,11 @@ export default function Home() {
               <h4>Contact</h4>
               <ul>
                 <li>
-                  <PhoneContact placement="up" />
-                </li>
-                <li>
-                  <a href={`mailto:${site.email}`}>{site.email}</a>
+                  <PhoneContact variant="footer" />
                 </li>
                 <li>Home visits by appointment</li>
               </ul>
             </div>
-          </div>
-
-          {/* Closing brand lockup — the last thing on the page */}
-          <div className="footer-signoff">
-            <img className="signoff-logo" src={`/logo-${site.brandLogo}.png`} alt="" width={256} height={256} />
-            <span className="signoff-name">{site.brandName}</span>
-            <span className="signoff-tag">{site.role} &middot; {site.coverage.label}</span>
           </div>
 
           <div className="footer-legal">
@@ -733,10 +616,7 @@ export default function Home() {
             </ul>
 
             <div className="modal-foot">
-              <a href="#contact" className="btn btn--primary" onClick={() => setActiveService(null)}>
-                Book a consultation
-                <Icon name="arrow" size={16} />
-              </a>
+              <PhoneContact variant="modal" />
             </div>
           </div>
         </div>

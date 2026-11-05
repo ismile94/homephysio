@@ -39,7 +39,7 @@ export const site = {
    *   'b'    - public/logo-b.png (blue & green figure)
    * Change this one value to swap the logo everywhere.
    */
-  brandLogo: 'a' as 'mark' | 'a' | 'b',
+  brandLogo: 'b' as 'mark' | 'a' | 'b',
 
   fees: {
     assessment: '£100',

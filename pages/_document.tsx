@@ -13,13 +13,6 @@ export default function AppDocument() {
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <link rel="mask-icon" href="/favicon.svg" color="#0b2a5b" />
 
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&display=swap"
-          rel="stylesheet"
-        />
-
         {GOOGLE_ADS_ID && (
           <>
             <script dangerouslySetInnerHTML={{ __html: gtagBootstrapScript() }} />

@@ -203,10 +203,16 @@ export default function Home() {
             <div className="services-grid">
               {Object.entries(servicesData).map(([key, service], i) => (
                 <Reveal key={key} delay={i * 70}>
-                  <button
-                    type="button"
+                  {/* A real link so crawlers (and no-JS / new-tab users) reach the
+                      service page; a plain click still opens the quick-view modal. */}
+                  <a
                     className="service-card"
-                    onClick={() => setActiveService(service)}
+                    href={`/services/${service.slug}`}
+                    onClick={(e) => {
+                      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+                      e.preventDefault();
+                      setActiveService(service);
+                    }}
                     aria-haspopup="dialog"
                   >
                     <h3>{service.title}</h3>
@@ -215,7 +221,7 @@ export default function Home() {
                       View details
                       <Icon name="arrow" size={14} strokeWidth={2} />
                     </span>
-                  </button>
+                  </a>
                 </Reveal>
               ))}
             </div>

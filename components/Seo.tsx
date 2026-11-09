@@ -28,7 +28,7 @@ export const HOME_TITLE = 'Home Physiotherapy Manchester, Stockport & Cheshire |
 /** Kept under ~155 characters so Google shows it whole rather than truncating. */
 export const HOME_DESCRIPTION =
   'Chartered physiotherapist visiting you at home across Manchester, Stockport & Cheshire. ' +
-  'HCPC registered. No GP referral. Call or WhatsApp to book.';
+  'HCPC registered. No GP referral needed. Call or WhatsApp to book.';
 
 const ID = {
   website: `${site.url}/#website`,
@@ -76,17 +76,27 @@ function sharedNodes(): JsonLdNode[] {
     },
   };
 
-  // Each covered town as its own City node, nested in its county.
-  const areaServed = site.coverage.towns.map((town) => ({
-    '@type': 'City',
-    name: town.name,
-    containedInPlace: {
+  // Each covered town as its own City node, nested in its county, plus the two
+  // headline regions (Greater Manchester, Cheshire) that searches name directly.
+  const areaServed = [
+    ...site.coverage.towns.map((town) => ({
+      '@type': 'City',
+      name: town.name,
+      containedInPlace: {
+        '@type': 'AdministrativeArea',
+        name: town.county,
+        containedInPlace: { '@type': 'Country', name: 'United Kingdom', identifier: 'GB' },
+      },
+    })),
+    ...['Greater Manchester', 'Cheshire'].map((name) => ({
       '@type': 'AdministrativeArea',
-      name: town.county,
+      name,
       containedInPlace: { '@type': 'Country', name: 'United Kingdom', identifier: 'GB' },
-    },
-  }));
+    })),
+  ];
 
+  // Physiotherapy is schema.org's MedicalBusiness > LocalBusiness subtype for
+  // physio practices, so this node is the LocalBusiness entity for the site.
   const practice = {
     '@type': ['MedicalBusiness', 'Physiotherapy'],
     '@id': ID.practice,
@@ -98,6 +108,15 @@ function sharedNodes(): JsonLdNode[] {
     telephone: site.phoneE164,
     email: site.email,
     description: HOME_DESCRIPTION,
+    slogan: `Home physiotherapy across ${site.coverage.label}`,
+    // The practice is one HCPC-registered physiotherapist; the registration is
+    // the verifiable identifier, linked to the public register entry.
+    identifier: {
+      '@type': 'PropertyValue',
+      propertyID: 'HCPC Registration Number',
+      value: site.hcpcNumber,
+      url: site.hcpcRegisterUrl,
+    },
     medicalSpecialty: 'Physiotherapy',
     isAcceptingNewPatients: true,
     priceRange: '££',

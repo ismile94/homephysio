@@ -1,12 +1,12 @@
 import type { GetStaticPaths, GetStaticProps } from 'next';
-import Seo, { breadcrumbNode, jsonLdIds, webPageNode } from '@/components/Seo';
+import Seo, { breadcrumbNode, faqNode, jsonLdIds, webPageNode } from '@/components/Seo';
 import Icon from '@/components/Icon';
 import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
 import PhysioCard from '@/components/PhysioCard';
 import { serviceBySlug, serviceList } from '@/data/services';
 import { processSteps } from '@/data/conditions';
-import { faqs } from '@/data/faqs';
+import { faqs, serviceFaqs } from '@/data/faqs';
 import { site, townLabel } from '@/data/site';
 
 const PAGE_FAQS = [
@@ -25,9 +25,13 @@ export default function ServicePage({ slug }: Props) {
   if (!service) return null;
 
   const path = `/services/${service.slug}`;
-  const title = `${service.headline} | Manchester & Cheshire`;
+  const title = service.seoTitle;
   const others = serviceList.filter((s) => s.slug !== service.slug);
-  const pageFaqs = faqs.filter((f) => PAGE_FAQS.includes(f.question));
+  // Service-specific questions first, then the shared fee/referral/coverage ones.
+  const pageFaqs = [
+    ...(serviceFaqs[service.slug] ?? []),
+    ...faqs.filter((f) => PAGE_FAQS.includes(f.question)),
+  ];
 
   const nodes = [
     webPageNode(path, title, service.metaDescription),
@@ -46,6 +50,8 @@ export default function ServicePage({ slug }: Props) {
       provider: { '@id': jsonLdIds.practice },
       mainEntityOfPage: { '@id': `${site.url}${path}#webpage` },
     },
+    // Mirrors the visible FAQ list below exactly.
+    faqNode(path, pageFaqs),
   ];
 
   return (
@@ -160,7 +166,10 @@ export default function ServicePage({ slug }: Props) {
           <div className="shell faq-layout">
             <div className="faq-aside">
               <h2>Common questions</h2>
-              <p>Fees, referrals and the areas covered by home visits.</p>
+              <p>
+                About {service.title.toLowerCase()} at home, plus fees, referrals and the areas
+                covered.
+              </p>
             </div>
             <div className="faq-list">
               {pageFaqs.map((faq) => (
